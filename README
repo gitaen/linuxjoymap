@@ -1,0 +1,19 @@
+1) Make sure that the module uinput is loaded,
+     I have
+        rmmod ehci_hcd
+        rmmod ohci_hcd
+        rmmod uinput
+        modprobe uinput
+        /sbin/reserve_js
+        modprobe ehci_hcd
+        modprobe ohci_hcd
+    in /etc/rc.d/rc.local. This ensures that js0 through 16 are reserved
+    for the program. The program /sbin/reserve_js waits 10 seconds
+    before releasing js0 through 16.
+
+2) You need permissions on /dev/input/uinput and /dev/input/event*
+3) Run the program loadmap with your script, it will continue running
+   and provide the joystick events programmed until the program is
+   terminated.
+4) Joystick selection by number is broken, the vendor and product
+   identifier must be used
