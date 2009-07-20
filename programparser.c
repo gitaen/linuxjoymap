@@ -218,7 +218,7 @@ static void emit2(int instr, int symbol, int value) {
 	ip+=2;
 }
 
-static void printcode() {
+void printcode() {
 	int lip=0;
 	int task;
 	int type;
@@ -1263,7 +1263,7 @@ int parse_program(char *program, struct program_code *code) {
 		parse_script();
 		fclose(pfile);
 		code->program=PROGRAM_CODE;
-		printcode();
+		//printcode();
 	}
 	return program_parse_err;
 }

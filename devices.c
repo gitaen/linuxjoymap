@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 #include "mapper.h"
 
 #define NUM_JOYSTICKS 10
@@ -166,9 +167,14 @@ void unregister_devices();
 
 void press_key(int code, int value) {
 	struct input_event event;
+	gettimeofday(&event.time, NULL);
 	event.type=EV_KEY;
 	event.code=code;
 	event.value=value;
+	write(kbd_fd, &event, sizeof(event));
+	event.type=EV_SYN;
+	event.code=SYN_REPORT;
+	event.value=0;
 	write(kbd_fd, &event, sizeof(event));
 }
 
@@ -181,9 +187,14 @@ void release_keys(void) {
 
 void press_mouse_button(int code, int value) {
 	struct input_event event;
+	gettimeofday(&event.time, NULL);
 	event.type=EV_KEY;
 	event.code=code+BTN_LEFT;
 	event.value=value;
+	write(mouse_fd, &event, sizeof(event));
+	event.type=EV_SYN;
+	event.code=SYN_REPORT;
+	event.value=0;
 	write(mouse_fd, &event, sizeof(event));
 }
 
@@ -200,47 +211,56 @@ void set_mouse_pos(int cx, int cy) {
 
 void move_mouse_x(int rdx) {
 	struct input_event event;
+	gettimeofday(&event.time, NULL);
 	dx=rdx;
 	x+=dx;
 	event.type=EV_REL;
 	event.code=REL_X;
 	event.value=dx;
+	write(mouse_fd, &event, sizeof(event));
+	event.type=EV_SYN;
+	event.code=SYN_REPORT;
+	event.value=0;
 	write(mouse_fd, &event, sizeof(event));
 }
 
 void move_mouse_wheel(int rdw) {
 	struct input_event event;
+	gettimeofday(&event.time, NULL);
 	dwheel=rdw;
 	event.type=EV_REL;
 	event.code=REL_WHEEL;
 	event.value=dx;
 	write(mouse_fd, &event, sizeof(event));
+	event.type=EV_SYN;
+	event.code=SYN_REPORT;
+	event.value=0;
+	write(mouse_fd, &event, sizeof(event));
 }
 
 void move_mouse_y(int rdy) {
 	struct input_event event;
+	gettimeofday(&event.time, NULL);
 	dy=rdy;
 	y+=dy;
 	event.type=EV_REL;
 	event.code=REL_Y;
 	event.value=dy;
+	write(mouse_fd, &event, sizeof(event));
+	event.type=EV_SYN;
+	event.code=SYN_REPORT;
+	event.value=0;
 	write(mouse_fd, &event, sizeof(event));
 }
 
 void move_mouse(int rdx, int rdy) {
-	struct input_event event;
-	dx=rdx;
-	dy=rdy;
-	x+=dx;
-	y+=dy;
-	event.type=EV_REL;
-	event.code=REL_X;
-	event.value=dx;
-	write(mouse_fd, &event, sizeof(event));
-	event.type=EV_REL;
-	event.code=REL_Y;
-	event.value=dy;
-	write(mouse_fd, &event, sizeof(event));
+	move_mouse_x(rdx);
+	move_mouse_y(rdy);
+}
+
+void repeat_mouse_move() {
+	move_mouse_x(dx);
+	move_mouse_y(dy);
 }
 
 void release_mouse_buttons(void) {
@@ -251,30 +271,50 @@ void release_mouse_buttons(void) {
 
 void press_joy_button(int j, int code, int value) {
 	struct input_event event;
+	gettimeofday(&event.time, NULL);
 	if (j==255) {
 		event.type=EV_KEY;
 		event.code=code;
 		event.value=value;
 		write(code_fd, &event, sizeof(event));
+		event.type=EV_SYN;
+		event.code=SYN_REPORT;
+		event.value=0;
+		write(code_fd, &event, sizeof(event));
+		return;
 	}
 	if ((j<0)||(j>=NUM_JOYSTICKS)) return;
 	event.type=EV_KEY;
 	event.code=code;
 	event.value=value;
 	write(devices[j].fd, &event, sizeof(event));
+	event.type=EV_SYN;
+	event.code=SYN_REPORT;
+	event.value=0;
+	write(devices[j].fd, &event, sizeof(event));
 }
 
 void set_joy_axis(int j, int axis, int value) {
 	struct input_event event;
+	gettimeofday(&event.time, NULL);
 	if (j==255) {
 		event.type=EV_ABS;
 		event.code=axis;
 		event.value=value;
 		write(code_fd, &event, sizeof(event));
+		event.type=EV_SYN;
+		event.code=SYN_REPORT;
+		event.value=0;
+		write(code_fd, &event, sizeof(event));
+		return;
 	}
 	if ((j<0)||(j>=NUM_JOYSTICKS)) return;
 	event.type=EV_ABS;
 	event.code=axis;
 	event.value=value;
+	write(devices[j].fd, &event, sizeof(event));
+	event.type=EV_SYN;
+	event.code=SYN_REPORT;
+	event.value=0;
 	write(devices[j].fd, &event, sizeof(event));
 }

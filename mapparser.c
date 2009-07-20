@@ -237,6 +237,9 @@ static int has_required(dictionary dict, ...) {
 		if (entry==NULL) {
 			sprintf(msg, "Missing key:%s", s);
 			report(msg);
+			printf("Defined keys: ");
+			show_dictionary(dict);
+			printf("\n");
 			va_end(ap);
 			return 0;
 		}
@@ -518,9 +521,9 @@ static void parse_shift() {
 	struct token t;
 	t=readtoken();
 	parse_valuepairs();
-   	printf("shift ");
-	show_dictionary(dict);
-	printf("\n");
+   	//printf("shift ");
+	//show_dictionary(dict);
+	//printf("\n");
 	id=lookup_dictionary(dict, "id");
 	vendor=lookup_dictionary(dict, "vendor");
 	product=lookup_dictionary(dict, "product");
@@ -551,9 +554,9 @@ static void parse_script() {
 	struct token t;
 	t=readtoken();
 	parse_valuepairs();
-   	printf("script ");
-	show_dictionary(dict);
-	printf("\n");
+   	//printf("script ");
+	//show_dictionary(dict);
+	//printf("\n");
 	id=lookup_dictionary(dict, "id");
 	vendor=lookup_dictionary(dict, "vendor");
 	product=lookup_dictionary(dict, "product");
@@ -595,9 +598,9 @@ static void parse_button() {
 		reportline(t.line, t.pos, "Must have id, or vendor and product");
 	} else {
 		if (has_required(dict, "src", "target", NULL)) {
-	    		printf("button ");
-			show_dictionary(dict);
-			printf("\n");
+	    		//printf("button ");
+			//show_dictionary(dict);
+			//printf("\n");
 			map.program=PROGRAM_BUTTON_REMAP;
 			if (id!=NULL)
 				map.joystick=numeric(id);
@@ -656,9 +659,9 @@ static void parse_axis() {
 	int num;
 	t=readtoken();
 	parse_valuepairs();
-    	printf("axis ");
-	show_dictionary(dict);
-	printf("\n");
+    	//printf("axis ");
+	//show_dictionary(dict);
+	//printf("\n");
 	id=lookup_dictionary(dict, "id");
 	vendor=lookup_dictionary(dict, "vendor");
 	product=lookup_dictionary(dict, "product");
@@ -735,10 +738,10 @@ static void parse_joystick() {
 	} else {
 		num=numeric(device);
 		if ((num<0)||(num>7)) reportline(t.line, t.pos, "Joystick must be 0-7");
-    		printf("joystick ");
-		show_dictionary(dict);
+    		//printf("joystick ");
+		//show_dictionary(dict);
+		//printf("\n");
 		if (num>=njoysticks) njoysticks=num+1;
-		printf("\n");
 		if (axes!=NULL)
 			joysticks[num].axes=numeric(axes);
 		else
@@ -756,7 +759,7 @@ static void parse_code() {
 	struct token t;
 	t=readtoken();
 	t=readtoken();
-    	printf("code ");
+    	//printf("code ");
 	if (t.type!=STRING) {
 		reportline(t.line, t.pos, "String expected");
 	} else strcpy(compile, t.value);
@@ -764,7 +767,7 @@ static void parse_code() {
 	while ((t.type!=NL)&&(t.type!=EOF)) {
 		reportline(t.line, t.pos, "No further token expected on this line");
 	}
-    	printf("\"%s\"\n", compile);
+    	//printf("\"%s\"\n", compile);
 }
 
 static void parse_joysticks() {
@@ -793,7 +796,7 @@ static void parse_include() {
 	FILE *backup;
 	t=readtoken();
 	t=readtoken();
-    	printf("include ");
+    	//printf("include ");
 	if (t.type!=STRING) {
 		reportline(t.line, t.pos, "String expected");
 	} else strcpy(include, t.value);
@@ -801,7 +804,7 @@ static void parse_include() {
 	while ((t.type!=NL)&&(t.type!=EOF)) {
 		reportline(t.line, t.pos, "No further token expected on this line");
 	}
-    	printf("\"%s\"\n", include);
+    	//printf("\"%s\"\n", include);
 	backup=pfile;
 	pfile=fopen(include, "r");
 	if (pfile==NULL) reportline(t.line, t.pos, "Could not find specified file");

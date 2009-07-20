@@ -38,5 +38,7 @@ void set_joystick_number(__u16 vendor, __u16 product, int device);
 int mapper_code_install(void);
 int mapper_code_uninstall(void);
 void program_run();
+void printcode();
+void repeat_mouse_move();
 
 #endif

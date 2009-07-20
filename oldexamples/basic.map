@@ -22,7 +22,7 @@ button vendor=0x068e product=0x00f4 src=0 target=joybtn device=0 button=0
 button vendor=0x068e product=0x00f4 src=1 target=kbd button="a" flags=autorelease 
 #strings can be used to specify a sequence, REL indicates release
 #see keys.map
-button vendor=0x068e product=0x00f4 src=2 target=kbd button="b REL b a REL a n REL n g REL g leftshift 1 REL 1 REL leftshift"  
+button vendor=0x068e product=0x00f4 src=2 target=kbd button="b REL b a REL a n REL n g REL g leftshift num1 REL num1 REL leftshift"  
 
 #CH Products PRO Throttle
 axis vendor=0x068e product=0x00f1 src=2 target=joyaxis device=0 axis=2

@@ -68,9 +68,14 @@ void install_event_handlers() {
 		} else {
 			ioctl(fd, EVIOCGID, &id);
 			if ((id.vendor==0x00ff)&&(id.product!=0x0000)) {
+				close(fd);
 				events[i]=NULL;
 				continue;
 			}
+			char devname[256];
+			memset(devname, 0, 256);
+			ioctl(fd, EVIOCGNAME(255), devname);
+			fprintf(stderr, "Found device %s (vendor=0x%x, product=0x%x)\n", devname, id.vendor, id.product);
 			events[i]=(struct mapping *)malloc(sizeof(struct mapping));
 			events[i]->fd=fd;
 			events[i]->vendor=id.vendor;
@@ -99,7 +104,7 @@ void poll_joystick_loop() {
 	int i, j, n=0;
         struct pollfd polled_fds[MAX_EVENTS];
 	struct mapping *poll_mapper[MAX_EVENTS];
-	struct input_event ev[64];
+	struct input_event ev[16];
 	int rb;
 	for (i=0; i<MAX_EVENTS; i++) {
 		if (events[i] && (events[i]->mapped)) {
@@ -114,7 +119,7 @@ void poll_joystick_loop() {
 		if (polled_fds[i].revents&POLLIN) {
 			rb=1;
 			while (rb>0) {
-				rb=read(polled_fds[i].fd, ev, sizeof(struct input_event)*64);
+				rb=read(polled_fds[i].fd, ev, sizeof(struct input_event)*16);
 				if (rb>0)
 				for (j=0; j<(int)(rb/sizeof(struct input_event)); j++) {
 					if (ev[j].type==EV_KEY) {
@@ -128,6 +133,7 @@ void poll_joystick_loop() {
 		}
 	}
 	program_run();
+	repeat_mouse_move();
 }
 
 static int nsignals=0;
