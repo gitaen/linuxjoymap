@@ -294,9 +294,24 @@ void press_joy_button(int j, int code, int value) {
 	write(devices[j].fd, &event, sizeof(event));
 }
 
+static int scale_multiplier=1;
+static int scale_divider=1;
+static int scale_offset=0;
+
+void set_scale_factor(int mult, int div, int ofs) {
+        scale_multiplier=mult;
+        scale_divider=div;
+        scale_offset=ofs;
+}
+
+int rescale(int v) {
+        return v*scale_multiplier/scale_divider-scale_offset;
+}
+
 void set_joy_axis(int j, int axis, int value) {
 	struct input_event event;
 	gettimeofday(&event.time, NULL);
+        value = rescale(value);
 	if (j==255) {
 		event.type=EV_ABS;
 		event.code=axis;

@@ -14,8 +14,17 @@
 int main(int argc, char *argv[]) {
 	int i;
 	int parse_err;
+        int mult=1;
+        int div=1;
+        int ofs=0;
 	
 	++argv, --argc;  /* skip over program name */
+        if (strcmp(argv[0], "-8")==0) {
+	    ++argv, --argc; 
+            mult=256;
+            div=1;
+            ofs=32767;
+        }
 	if ( argc > 0 )
 		fmap = fopen( argv[0], "r" );
 	else
@@ -38,6 +47,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		register_devices();
+                set_scale_factor(mult, div, ofs);
 		sleep(1);
 		install_event_handlers();
 		printf("%d button assignments.\n", nbuttons);

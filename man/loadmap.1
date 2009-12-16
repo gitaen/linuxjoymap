@@ -4,7 +4,7 @@
 loadmap - load a joystick mapping
 .SH SYNOPSIS
 .B loadmap 
-[\fIFILE\fR]
+[\fI-8\fR] [\fIFILE\fR]
 .SH DESCRIPTION
 .\" Add any additional description here
 .PP
@@ -16,6 +16,11 @@ and \fBProgramming guide\fR for more details.
 .PP
 This program takes one argument, the file to read the configuration
 from. If no argument is specified then \fBstdin\fR is used instead.
+.PP
+Additional flags:
+.TP
+-8 
+Convert reported event range from 0-255 to -32767 to 32767
 .PP
 Exit status is 0 if OK, 1 otherwise.
 .SH "SEE ALSO"

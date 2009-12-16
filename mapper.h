@@ -40,5 +40,6 @@ int mapper_code_uninstall(void);
 void program_run();
 void printcode();
 void repeat_mouse_move();
+void set_scale_factor(int mult, int div, int ofs);
 
 #endif
