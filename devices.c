@@ -10,23 +10,30 @@
 
 #define NUM_JOYSTICKS 10
 
+struct jscal {
+        int min;
+        int max;
+        int stable;
+};
+
 struct joystick_device {
 	int axes;
 	int buttons;
 	int fd;
+        struct jscal cal;
 };
 
 static struct joystick_device devices[NUM_JOYSTICKS]={
-		{0,0,-1},
-		{0,0,-1},
-		{0,0,-1},
-		{0,0,-1},
-		{0,0,-1},
-		{0,0,-1},
-		{0,0,-1},
-		{0,0,-1},
-		{0,0,-1},
-		{0,0,-1}
+		{0,0,-1, {0,0,1000}},
+		{0,0,-1, {0,0,1000}},
+		{0,0,-1, {0,0,1000}},
+		{0,0,-1, {0,0,1000}},
+		{0,0,-1, {0,0,1000}},
+		{0,0,-1, {0,0,1000}},
+		{0,0,-1, {0,0,1000}},
+		{0,0,-1, {0,0,1000}},
+		{0,0,-1, {0,0,1000}},
+		{0,0,-1, {0,0,1000}}
 };
 
 static int mouse_fd;
@@ -297,6 +304,8 @@ void press_joy_button(int j, int code, int value) {
 static int scale_multiplier=1;
 static int scale_divider=1;
 static int scale_offset=0;
+static int dcal=0;
+static int cal_error=6500;
 
 void set_scale_factor(int mult, int div, int ofs) {
         scale_multiplier=mult;
@@ -304,8 +313,31 @@ void set_scale_factor(int mult, int div, int ofs) {
         scale_offset=ofs;
 }
 
+void set_dynamic_calibrate(int on) {
+        dcal=on;
+}
+
 int rescale(int v) {
         return v*scale_multiplier/scale_divider-scale_offset;
+}
+
+int calibrate(int j, int v) {
+        if (!dcal) return v;
+        if (devices[j].cal.stable) {
+                devices[j].cal.stable--;
+                return v;
+        }
+        if ((devices[j].cal.min==devices[j].cal.max)&&(devices[j].cal.max==0)) {
+                devices[j].cal.min=devices[j].cal.max=v;
+                return v;
+        }
+        if (v<devices[j].cal.min) devices[j].cal.min=v;
+        if (v>devices[j].cal.max) devices[j].cal.max=v;
+        if (devices[j].cal.min==devices[j].cal.max)
+                return v;                
+        v=(v-devices[j].cal.min)*65536/devices[j].cal.max-devices[j].cal.min-32767;
+        v=(v*32768)/(32768-cal_error);
+        return v;
 }
 
 void set_joy_axis(int j, int axis, int value) {
@@ -326,7 +358,7 @@ void set_joy_axis(int j, int axis, int value) {
 	if ((j<0)||(j>=NUM_JOYSTICKS)) return;
 	event.type=EV_ABS;
 	event.code=axis;
-	event.value=value;
+	event.value=calibrate(j, value);
 	write(devices[j].fd, &event, sizeof(event));
 	event.type=EV_SYN;
 	event.code=SYN_REPORT;

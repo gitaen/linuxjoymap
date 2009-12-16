@@ -4,7 +4,7 @@
 loadmap - load a joystick mapping
 .SH SYNOPSIS
 .B loadmap 
-[\fI-8\fR] [\fIFILE\fR]
+[\fI-8\fR] [\fi-d\fR] [\fIFILE\fR]
 .SH DESCRIPTION
 .\" Add any additional description here
 .PP
@@ -21,6 +21,9 @@ Additional flags:
 .TP
 -8 
 Convert reported event range from 0-255 to -32767 to 32767
+.TP
+-d 
+Dynamically (during use) compute calibration value so that events are reported in the range -32767 to 32767.
 .PP
 Exit status is 0 if OK, 1 otherwise.
 .SH "SEE ALSO"

@@ -25,6 +25,10 @@ int main(int argc, char *argv[]) {
             div=1;
             ofs=32767;
         }
+        if (strcmp(argv[0], "-d")==0) {
+	    ++argv, --argc; 
+            set_dynamic_calibrate(1);
+        }
 	if ( argc > 0 )
 		fmap = fopen( argv[0], "r" );
 	else

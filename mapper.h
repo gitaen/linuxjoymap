@@ -41,5 +41,6 @@ void program_run();
 void printcode();
 void repeat_mouse_move();
 void set_scale_factor(int mult, int div, int ofs);
+void set_dynamic_calibrate(int on);
 
 #endif
