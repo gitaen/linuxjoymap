@@ -21,20 +21,24 @@ int main(int argc, char *argv[]) {
 
     cmdline_config(argc, argv);
     ++argv, --argc;  /* skip over program name */
+
     if (strcmp(argv[0], "-8")==0) {
         ++argv, --argc; 
         mult=256;
         div=1;
         ofs=32767;
     }
+
     if (strcmp(argv[0], "-d")==0) {
         ++argv, --argc; 
         set_dynamic_calibrate(1);
     }
+
     if ( argc > 0 )
-        fmap = fopen( argv[0], "r" );
+        fmap = fopen(argv[0], "r");
     else
         fmap = stdin;
+
     if (fmap==NULL) {
         perror("Failed to open map");
         return 1;

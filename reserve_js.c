@@ -16,6 +16,11 @@ void register_devices() {
     int fd[NUM_JOYSTICKS];
     for (i=0; i<NUM_JOYSTICKS; i++) {
         fd[i] = open(get_config(UINPUT_DEV), O_WRONLY);
+        if (fd[i] < 0) {
+            fprintf(stderr, "Failed to open %s:", get_config(UINPUT_DEV));
+            perror("Error");
+            exit(1);
+        }
         ioctl(fd[i], UI_SET_EVBIT, EV_KEY);
         ioctl(fd[i], UI_SET_EVBIT, EV_ABS);
         ioctl(fd[i], UI_SET_ABSBIT, ABS_X);
