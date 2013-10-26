@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "config.h"
 
 #define NUM_JOYSTICKS 10
 #define WAIT_TIME 10
@@ -14,7 +15,7 @@ void register_devices() {
 	struct uinput_user_dev dev;
 	int fd[NUM_JOYSTICKS];
 	for (i=0; i<NUM_JOYSTICKS; i++) {
-		fd[i] = open("/dev/misc/uinput", O_WRONLY);
+		fd[i] = open(get_config(UINPUT_DEV), O_WRONLY);
 		ioctl(fd[i], UI_SET_EVBIT, EV_KEY);
 		ioctl(fd[i], UI_SET_EVBIT, EV_ABS);
 		ioctl(fd[i], UI_SET_ABSBIT, ABS_X);

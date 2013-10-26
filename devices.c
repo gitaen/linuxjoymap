@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include "config.h"
 #include "mapper.h"
 
 #define NUM_JOYSTICKS 10
@@ -64,7 +65,7 @@ void register_devices() {
 	int i, j;
 	struct uinput_user_dev dev;
 	for (i=0; i<NUM_JOYSTICKS; i++) {
-		devices[i].fd = open("/dev/misc/uinput", O_WRONLY);
+		devices[i].fd = open(get_config(UINPUT_DEV), O_WRONLY);
 		ioctl(devices[i].fd, UI_SET_EVBIT, EV_KEY);
 		ioctl(devices[i].fd, UI_SET_EVBIT, EV_ABS);
 		for (j=0; j<devices[i].axes; j++)
@@ -94,7 +95,7 @@ void register_devices() {
 
 	//now the mouse
 	memset(&dev, 0, sizeof(dev));
-	mouse_fd = open("/dev/misc/uinput", O_WRONLY);
+	mouse_fd = open(get_config(UINPUT_DEV), O_WRONLY);
 	ioctl(mouse_fd, UI_SET_EVBIT, EV_KEY);
 	ioctl(mouse_fd, UI_SET_EVBIT, EV_REL);
 	ioctl(mouse_fd, UI_SET_KEYBIT, BTN_LEFT);
@@ -116,7 +117,7 @@ void register_devices() {
 	
 	//now the keyboard
 	memset(&dev, 0, sizeof(dev));
-	kbd_fd = open("/dev/misc/uinput", O_WRONLY);
+	kbd_fd = open(get_config(UINPUT_DEV), O_WRONLY);
 	ioctl(kbd_fd, UI_SET_EVBIT, EV_KEY);
 	ioctl(kbd_fd, UI_SET_EVBIT, EV_REP);
 	ioctl(kbd_fd, UI_SET_EVBIT, EV_MSC);
@@ -139,7 +140,7 @@ void register_devices() {
 
 	//and the code device
 	memset(&dev, 0, sizeof(dev));
-	code_fd = open("/dev/misc/uinput", O_WRONLY);
+	code_fd = open(get_config(UINPUT_DEV), O_WRONLY);
 	ioctl(code_fd, UI_SET_EVBIT, EV_KEY);
 	ioctl(code_fd, UI_SET_EVBIT, EV_ABS);
 	for (j=0; j<ABS_MAX; j++)
