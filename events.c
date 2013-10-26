@@ -16,6 +16,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "config.h"
 #include "mapper.h"
 
 #define MAX_SIGNALS		16
@@ -61,7 +62,7 @@ void install_event_handlers() {
 	char name[256];
 	struct input_id id;
 	for (i=0; i<=MAX_EVENTS; i++) {
-		sprintf(name, "/dev/input/event%d", i);
+		sprintf(name, "%s%d", get_config(EVENT_DEV), i);
 		int fd=open(name, O_RDONLY|O_NONBLOCK);
 		if (fd<0) {
 			events[i]=NULL;

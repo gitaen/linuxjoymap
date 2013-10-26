@@ -53,6 +53,7 @@ void register_devices() {
 }
 
 int main() {
+    cmdline_config(argc, argv);
 	if (fork()==0) {
 		register_devices();
 	}

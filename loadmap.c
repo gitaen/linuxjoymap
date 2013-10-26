@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include "config.h"
 #include "dictionary.h"
 #include "program.h"
 #include "keys.h"
@@ -17,7 +18,8 @@ int main(int argc, char *argv[]) {
         int mult=1;
         int div=1;
         int ofs=0;
-	
+
+    cmdline_config(argc, argv);
 	++argv, --argc;  /* skip over program name */
         if (strcmp(argv[0], "-8")==0) {
 	    ++argv, --argc; 

@@ -3,6 +3,15 @@
 char *current_config[CONFIG_MAX] = {
     /* UINPUT_DEV */
     "/dev/uinput",
+    /* EVENT_DEV */
+    "/dev/input/event",
+};
+
+char *cmdline_arg[CONFIG_MAX] = {
+    /* UINPUT_DEV */
+    "--uinput_dev",
+    /* EVENT_DEV */
+    "--event_dev",
 };
 
 char *get_config(int key) {
@@ -19,4 +28,7 @@ char *set_config(int key, char *value) {
         exit(1);
     }
     current_config[key] = value;
+}
+
+void cmdline_config(int argc, char *argv[]) {
 }
