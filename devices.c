@@ -239,7 +239,7 @@ void press_mouse_button(int code, int value) {
     struct input_event event;
     gettimeofday(&event.time, NULL);
     event.type=EV_KEY;
-    event.code=code+BTN_LEFT;
+    event.code=code;
     event.value=value;
     safe_write(mouse_fd, &event, sizeof(event));
     event.type=EV_SYN;
@@ -314,9 +314,9 @@ void repeat_mouse_move() {
 }
 
 void release_mouse_buttons(void) {
-    press_mouse_button(0,0);
-    press_mouse_button(1,0);
-    press_mouse_button(2,0);
+    press_mouse_button(BTN_LEFT,0);
+    press_mouse_button(BTN_RIGHT,0);
+    press_mouse_button(BTN_MIDDLE,0);
 }
 
 void press_joy_button(int j, int code, int value) {
