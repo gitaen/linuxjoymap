@@ -84,7 +84,7 @@ void install_event_handlers() {
                 perror("Failed to get input device name");
                 exit(1);
             }
-            fprintf(stderr, "Found device %s (vendor=0x%x, product=0x%x)\n", devname, id.vendor, id.product);
+            fprintf(stderr, "Found device %s (vendor=0x%04x, product=0x%04x)\n", devname, id.vendor, id.product);
             events[i]=(struct mapping *)malloc(sizeof(struct mapping));
             events[i]->fd=fd;
             events[i]->vendor=id.vendor;
@@ -342,7 +342,7 @@ void remap_axis(struct program_axis_remap *axis) {
     r = ioctl(mapper->fd, EVIOCGRAB, 1);
     if (r < 0) {
         perror("Failed to grab device");
-        exit(1);
+        fprintf(stderr, "Failed to lock device with vendor=0x%04x, product=0x%04x. Continuing anyway...\n", axis->vendor, axis->product);
     }
 
     shifted=0;
@@ -370,7 +370,7 @@ void remap_button(struct program_button_remap *btn) {
     r = ioctl(mapper->fd, EVIOCGRAB, 1);
     if (r < 0) {
         perror("Failed to grab device");
-        exit(1);
+        fprintf(stderr, "Failed to lock device with vendor=0x%04x, product=0x%04x. Continuing anyway...\n", btn->vendor, btn->product);
     }
 
     shifted=0;
