@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include "config.h"
+#include "program.h"
 #include "mapper.h"
 
 #define NUM_JOYSTICKS 10
@@ -184,7 +185,7 @@ void register_devices() {
     code_fd = valid_open(get_config(UINPUT_DEV), O_WRONLY);
     safe_ioctl3(code_fd, UI_SET_EVBIT, EV_KEY);
     safe_ioctl3(code_fd, UI_SET_EVBIT, EV_ABS);
-    for (j=0; j<ABS_MAX; j++)
+    for (j=0; j<MAX_AXES; j++)
         safe_ioctl3(code_fd, UI_SET_ABSBIT, j);
     // We have to stop at BTN_DIGI to be matched as a joystick device
     // That gives at most 32 buttons
