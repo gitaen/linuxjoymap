@@ -27,7 +27,7 @@
     }
 
 void register_devices() {
-    int i, j;
+    int i, j, r;
     struct uinput_user_dev dev;
     int fd[NUM_JOYSTICKS];
     for (i=0; i<NUM_JOYSTICKS; i++) {
@@ -78,7 +78,7 @@ void register_devices() {
     }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     cmdline_config(argc, argv);
     if (fork()==0) {
         register_devices();

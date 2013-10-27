@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "config.h"
 
 char *current_config[CONFIG_MAX] = {
@@ -7,7 +8,7 @@ char *current_config[CONFIG_MAX] = {
     "/dev/uinput",
     /* EVENT_DEV */
     "/dev/input/event",
-    NULL;
+    NULL,
 };
 
 char *cmdline_arg[CONFIG_MAX] = {
@@ -15,7 +16,7 @@ char *cmdline_arg[CONFIG_MAX] = {
     "--uinput_dev",
     /* EVENT_DEV */
     "--event_dev",
-    NULL;
+    NULL,
 };
 
 char *get_config(int key) {
@@ -27,11 +28,14 @@ char *get_config(int key) {
 }
 
 char *set_config(int key, char *value) {
+    char *old;
     if ((key >= CONFIG_MAX) || (key < 0)) {
         fprintf(stderr, "ERR: Invalid config key in code: %d\n", key);
         exit(1);
     }
+    old = current_config[key];
     current_config[key] = value;
+    return old;
 }
 
 int match_config(char *arg) {
@@ -45,14 +49,14 @@ int match_config(char *arg) {
 }
 
 void cmdline_config(int argc, char *argv[]) {
-    int i;
+    int i, index;
     for (i=0; i<argc; i++) {
         index = match_config(argv[i]);
         if (index >= 0) {
             if (i + 1 >= argc) {
                 fprintf(stderr, "Missing argument for: %s\n", argv[i]);
             }
-            current_config[key] = argv[++i];
+            current_config[index] = argv[++i];
         }
     }
 }

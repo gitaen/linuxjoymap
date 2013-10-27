@@ -1,3 +1,4 @@
+# Disable -Werror if there are compile errors 
 CFLAGS+=-Wall -Werror -g
 all: loadmap reserve_js
 

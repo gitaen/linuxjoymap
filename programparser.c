@@ -810,7 +810,7 @@ static void parse_declarations() {
 
 static void parse_if() {
     struct token t;
-    int start, f, fin, before;
+    int start, f=0, fin=0, before;
 
     parse_condition();
     start=ip; emitc(JZ, f);
@@ -854,7 +854,7 @@ static void parse_if() {
 
 static void parse_while() {
     struct token t;
-    int start, fin, cond;
+    int start, fin=0, cond;
     start=ip; 
     parse_condition();
     cond=ip; 
@@ -878,7 +878,7 @@ static void parse_while() {
 static void parse_delay() {
     struct token t;
     char msg[256];
-    int before, after, jump, reg;
+    int before=0, after=0, jump=0, reg=0;
     t=readtoken();
     if (t.type!='(') {
         sprintf(msg, "( expected before %s", t.value);
@@ -943,7 +943,7 @@ static void parse_signal() {
 static void parse_wait() {
     struct token t;
     char msg[256];
-    int before, after, test;
+    int before=0, after=0, test=0;
     t=readtoken();
     if (t.type!='(') {
         sprintf(msg, "( expected before %s", t.value);
@@ -1064,11 +1064,10 @@ static void parse_release() {
 
 static void parse_halt() {
     struct token name;
-    int thread;
     name=peektoken();
     if (name.type==ID) {
         eattoken();
-        thread=get_thread(name.value);
+        get_thread(name.value);
         emitc(JOIN,threadnum); 
     } else {
         emit1(HALT);
@@ -1079,7 +1078,6 @@ static void parse_halt() {
 void parse_thread() {
     struct token name;
     int thread;
-    int start;
     int end;
     int this;
     if (threaddepth>0)
@@ -1099,7 +1097,6 @@ void parse_thread() {
     expect('{', "{");
     thread=ip;
     emitc(THREAD,this); ip+=2;
-    start=ip;
     parse_statements(1);
     emit1(HALT);
     end=ip;
