@@ -71,17 +71,48 @@ int valid_open(char *file, int flags) {
     return fd;
 }
 
+int safe_ioctl3(int fd, int cmd, int arg) {
+    int r = ioctl(fd, cmd, arg);
+    if (r < 0) {
+        perror("Failed to execute ioctl");
+        exit(1);
+    }
+    return r;
+}
+
+int safe_ioctl2(int fd, int cmd) {
+    int r = ioctl(fd, cmd);
+    if (r < 0) {
+        perror("Failed to execute ioctl");
+        exit(1);
+    }
+    return r;
+}
+
+int safe_write(int fd, void *data, int size) {
+    int r = write(fd, data, size);
+    if (r != size) {
+        if (r < 0) {
+            perror("Failed to execute ioctl");
+            exit(1);
+        }
+        fprintf(stderr, "Short write\n");
+        exit(1);
+    }
+    return r;
+}
+
 void register_devices() {
     int i, j;
     struct uinput_user_dev dev;
     for (i=0; i<NUM_JOYSTICKS; i++) {
         devices[i].fd = valid_open(get_config(UINPUT_DEV), O_WRONLY);
-        ioctl(devices[i].fd, UI_SET_EVBIT, EV_KEY);
-        ioctl(devices[i].fd, UI_SET_EVBIT, EV_ABS);
+        safe_ioctl3(devices[i].fd, UI_SET_EVBIT, EV_KEY);
+        safe_ioctl3(devices[i].fd, UI_SET_EVBIT, EV_ABS);
         for (j=0; j<devices[i].axes; j++)
-            ioctl(devices[i].fd, UI_SET_ABSBIT, j);
+            safe_ioctl3(devices[i].fd, UI_SET_ABSBIT, j);
         for (j=0; j<devices[i].buttons; j++)
-            ioctl(devices[i].fd, UI_SET_KEYBIT, BTN_JOYSTICK+j);
+            safe_ioctl3(devices[i].fd, UI_SET_KEYBIT, BTN_JOYSTICK+j);
 
         memset(&dev, 0, sizeof(dev));
         sprintf(dev.name, "JOYMAP Joystick %d", i);
@@ -98,22 +129,22 @@ void register_devices() {
             dev.absfuzz[i] = 0;
             dev.absflat[j] = 0;
         }
-        write(devices[i].fd, &dev, sizeof(dev));
+        safe_write(devices[i].fd, &dev, sizeof(dev));
 
-        ioctl(devices[i].fd, UI_DEV_CREATE);
+        safe_ioctl2(devices[i].fd, UI_DEV_CREATE);
     }
 
     //now the mouse
     memset(&dev, 0, sizeof(dev));
     mouse_fd = valid_open(get_config(UINPUT_DEV), O_WRONLY);
-    ioctl(mouse_fd, UI_SET_EVBIT, EV_KEY);
-    ioctl(mouse_fd, UI_SET_EVBIT, EV_REL);
-    ioctl(mouse_fd, UI_SET_KEYBIT, BTN_LEFT);
-    ioctl(mouse_fd, UI_SET_KEYBIT, BTN_MIDDLE);
-    ioctl(mouse_fd, UI_SET_KEYBIT, BTN_RIGHT);
-    ioctl(mouse_fd, UI_SET_RELBIT, REL_X);
-    ioctl(mouse_fd, UI_SET_RELBIT, REL_Y);
-    ioctl(mouse_fd, UI_SET_RELBIT, REL_WHEEL);
+    safe_ioctl3(mouse_fd, UI_SET_EVBIT, EV_KEY);
+    safe_ioctl3(mouse_fd, UI_SET_EVBIT, EV_REL);
+    safe_ioctl3(mouse_fd, UI_SET_KEYBIT, BTN_LEFT);
+    safe_ioctl3(mouse_fd, UI_SET_KEYBIT, BTN_MIDDLE);
+    safe_ioctl3(mouse_fd, UI_SET_KEYBIT, BTN_RIGHT);
+    safe_ioctl3(mouse_fd, UI_SET_RELBIT, REL_X);
+    safe_ioctl3(mouse_fd, UI_SET_RELBIT, REL_Y);
+    safe_ioctl3(mouse_fd, UI_SET_RELBIT, REL_WHEEL);
 
     sprintf(dev.name, "JOYMAP Mouse");
     dev.id.bustype = BUS_VIRTUAL;
@@ -121,22 +152,22 @@ void register_devices() {
     dev.id.product = 0x0002;
     dev.id.version = 0x0000;
     dev.ff_effects_max = 0;
-    write(mouse_fd, &dev, sizeof(dev));
+    safe_write(mouse_fd, &dev, sizeof(dev));
 
-    ioctl(mouse_fd, UI_DEV_CREATE);
+    safe_ioctl2(mouse_fd, UI_DEV_CREATE);
     
     //now the keyboard
     memset(&dev, 0, sizeof(dev));
     kbd_fd = valid_open(get_config(UINPUT_DEV), O_WRONLY);
-    ioctl(kbd_fd, UI_SET_EVBIT, EV_KEY);
-    ioctl(kbd_fd, UI_SET_EVBIT, EV_REP);
-    ioctl(kbd_fd, UI_SET_EVBIT, EV_MSC);
-    ioctl(kbd_fd, UI_SET_EVBIT, EV_LED);
-    ioctl(kbd_fd, UI_SET_LEDBIT, LED_NUML);
-    ioctl(kbd_fd, UI_SET_LEDBIT, LED_CAPSL);
-    ioctl(kbd_fd, UI_SET_LEDBIT, LED_SCROLLL);
+    safe_ioctl3(kbd_fd, UI_SET_EVBIT, EV_KEY);
+    safe_ioctl3(kbd_fd, UI_SET_EVBIT, EV_REP);
+    safe_ioctl3(kbd_fd, UI_SET_EVBIT, EV_MSC);
+    safe_ioctl3(kbd_fd, UI_SET_EVBIT, EV_LED);
+    safe_ioctl3(kbd_fd, UI_SET_LEDBIT, LED_NUML);
+    safe_ioctl3(kbd_fd, UI_SET_LEDBIT, LED_CAPSL);
+    safe_ioctl3(kbd_fd, UI_SET_LEDBIT, LED_SCROLLL);
     for (i=0; i<512; i++) 
-        ioctl(kbd_fd, UI_SET_KEYBIT, i);
+        safe_ioctl3(kbd_fd, UI_SET_KEYBIT, i);
 
     sprintf(dev.name, "JOYMAP Keyboard");
     dev.id.bustype = BUS_VIRTUAL;
@@ -144,21 +175,21 @@ void register_devices() {
     dev.id.product = 0x0002;
     dev.id.version = 0x0000;
     dev.ff_effects_max = 0;
-    write(kbd_fd, &dev, sizeof(dev));
+    safe_write(kbd_fd, &dev, sizeof(dev));
 
-    ioctl(kbd_fd, UI_DEV_CREATE);
+    safe_ioctl2(kbd_fd, UI_DEV_CREATE);
 
     //and the code device
     memset(&dev, 0, sizeof(dev));
     code_fd = valid_open(get_config(UINPUT_DEV), O_WRONLY);
-    ioctl(code_fd, UI_SET_EVBIT, EV_KEY);
-    ioctl(code_fd, UI_SET_EVBIT, EV_ABS);
+    safe_ioctl3(code_fd, UI_SET_EVBIT, EV_KEY);
+    safe_ioctl3(code_fd, UI_SET_EVBIT, EV_ABS);
     for (j=0; j<ABS_MAX; j++)
-        ioctl(code_fd, UI_SET_ABSBIT, j);
+        safe_ioctl3(code_fd, UI_SET_ABSBIT, j);
     for (j=0; j<KEY_MAX; j++)
         if (j>=BTN_JOYSTICK)
         if ((j!=BTN_TOUCH)&&(j!=BTN_TOOL_FINGER)) //make sure we don't get matched as some other device
-            ioctl(code_fd, UI_SET_KEYBIT, j);
+            safe_ioctl3(code_fd, UI_SET_KEYBIT, j);
 
     sprintf(dev.name, "JOYMAP Code Device");
 
@@ -174,9 +205,9 @@ void register_devices() {
         dev.absfuzz[i] = 0;
         dev.absflat[i] = 0;
     }
-    write(code_fd, &dev, sizeof(dev));
+    safe_write(code_fd, &dev, sizeof(dev));
 
-    ioctl(code_fd, UI_DEV_CREATE);
+    safe_ioctl2(code_fd, UI_DEV_CREATE);
 
     mapper_code_install();
 }
@@ -189,11 +220,11 @@ void press_key(int code, int value) {
     event.type=EV_KEY;
     event.code=code;
     event.value=value;
-    write(kbd_fd, &event, sizeof(event));
+    safe_write(kbd_fd, &event, sizeof(event));
     event.type=EV_SYN;
     event.code=SYN_REPORT;
     event.value=0;
-    write(kbd_fd, &event, sizeof(event));
+    safe_write(kbd_fd, &event, sizeof(event));
 }
 
 void release_keys(void) {
@@ -209,11 +240,11 @@ void press_mouse_button(int code, int value) {
     event.type=EV_KEY;
     event.code=code+BTN_LEFT;
     event.value=value;
-    write(mouse_fd, &event, sizeof(event));
+    safe_write(mouse_fd, &event, sizeof(event));
     event.type=EV_SYN;
     event.code=SYN_REPORT;
     event.value=0;
-    write(mouse_fd, &event, sizeof(event));
+    safe_write(mouse_fd, &event, sizeof(event));
 }
 
 void set_mouse_pos(int cx, int cy) {
@@ -235,11 +266,11 @@ void move_mouse_x(int rdx) {
     event.type=EV_REL;
     event.code=REL_X;
     event.value=dx;
-    write(mouse_fd, &event, sizeof(event));
+    safe_write(mouse_fd, &event, sizeof(event));
     event.type=EV_SYN;
     event.code=SYN_REPORT;
     event.value=0;
-    write(mouse_fd, &event, sizeof(event));
+    safe_write(mouse_fd, &event, sizeof(event));
 }
 
 void move_mouse_wheel(int rdw) {
@@ -249,11 +280,11 @@ void move_mouse_wheel(int rdw) {
     event.type=EV_REL;
     event.code=REL_WHEEL;
     event.value=dx;
-    write(mouse_fd, &event, sizeof(event));
+    safe_write(mouse_fd, &event, sizeof(event));
     event.type=EV_SYN;
     event.code=SYN_REPORT;
     event.value=0;
-    write(mouse_fd, &event, sizeof(event));
+    safe_write(mouse_fd, &event, sizeof(event));
 }
 
 void move_mouse_y(int rdy) {
@@ -264,11 +295,11 @@ void move_mouse_y(int rdy) {
     event.type=EV_REL;
     event.code=REL_Y;
     event.value=dy;
-    write(mouse_fd, &event, sizeof(event));
+    safe_write(mouse_fd, &event, sizeof(event));
     event.type=EV_SYN;
     event.code=SYN_REPORT;
     event.value=0;
-    write(mouse_fd, &event, sizeof(event));
+    safe_write(mouse_fd, &event, sizeof(event));
 }
 
 void move_mouse(int rdx, int rdy) {
@@ -294,22 +325,22 @@ void press_joy_button(int j, int code, int value) {
         event.type=EV_KEY;
         event.code=code;
         event.value=value;
-        write(code_fd, &event, sizeof(event));
+        safe_write(code_fd, &event, sizeof(event));
         event.type=EV_SYN;
         event.code=SYN_REPORT;
         event.value=0;
-        write(code_fd, &event, sizeof(event));
+        safe_write(code_fd, &event, sizeof(event));
         return;
     }
     if ((j<0)||(j>=NUM_JOYSTICKS)) return;
     event.type=EV_KEY;
     event.code=code;
     event.value=value;
-    write(devices[j].fd, &event, sizeof(event));
+    safe_write(devices[j].fd, &event, sizeof(event));
     event.type=EV_SYN;
     event.code=SYN_REPORT;
     event.value=0;
-    write(devices[j].fd, &event, sizeof(event));
+    safe_write(devices[j].fd, &event, sizeof(event));
 }
 
 static int scale_multiplier=1;
@@ -359,20 +390,20 @@ void set_joy_axis(int j, int axis, int value) {
         event.type=EV_ABS;
         event.code=axis;
         event.value=value;
-        write(code_fd, &event, sizeof(event));
+        safe_write(code_fd, &event, sizeof(event));
         event.type=EV_SYN;
         event.code=SYN_REPORT;
         event.value=0;
-        write(code_fd, &event, sizeof(event));
+        safe_write(code_fd, &event, sizeof(event));
         return;
     }
     if ((j<0)||(j>=NUM_JOYSTICKS)) return;
     event.type=EV_ABS;
     event.code=axis;
     event.value=calibrate(j, value);
-    write(devices[j].fd, &event, sizeof(event));
+    safe_write(devices[j].fd, &event, sizeof(event));
     event.type=EV_SYN;
     event.code=SYN_REPORT;
     event.value=0;
-    write(devices[j].fd, &event, sizeof(event));
+    safe_write(devices[j].fd, &event, sizeof(event));
 }

@@ -58,7 +58,7 @@ struct mapping *events[MAX_EVENTS];
 //the code joystick is 0xff and product 0x00 
 //the code joystick must be handled by our code
 void install_event_handlers() {
-    int i, j;    
+    int i, j, r;
     char name[256];
     struct input_id id;
     for (i=0; i<=MAX_EVENTS; i++) {
@@ -67,7 +67,11 @@ void install_event_handlers() {
         if (fd<0) {
             events[i]=NULL;
         } else {
-            ioctl(fd, EVIOCGID, &id);
+            r = ioctl(fd, EVIOCGID, &id);
+            if (r < 0) {
+                perror("Failed to get vendor and product id");
+                exit(1);
+            }
             if ((id.vendor==0x00ff)&&(id.product!=0x0000)) {
                 close(fd);
                 events[i]=NULL;
@@ -75,7 +79,11 @@ void install_event_handlers() {
             }
             char devname[256];
             memset(devname, 0, 256);
-            ioctl(fd, EVIOCGNAME(255), devname);
+            r = ioctl(fd, EVIOCGNAME(255), devname);
+            if (r < 0) {
+                perror("Failed to get input device name");
+                exit(1);
+            }
             fprintf(stderr, "Found device %s (vendor=0x%x, product=0x%x)\n", devname, id.vendor, id.product);
             events[i]=(struct mapping *)malloc(sizeof(struct mapping));
             events[i]->fd=fd;
@@ -316,7 +324,7 @@ static void process_axis(struct mapping *mapper, int axis, int value) {
 
 void remap_axis(struct program_axis_remap *axis) {
     struct mapping *mapper;
-    int i, shifted;
+    int i, shifted, r;
 
     if (axis->program!=PROGRAM_AXIS_REMAP) return;
     if (axis->srcaxis>ABS_MAX) return;
@@ -331,7 +339,11 @@ void remap_axis(struct program_axis_remap *axis) {
     
     if (mapper==NULL) return;
     mapper->mapped=1;
-    ioctl(mapper->fd, EVIOCGRAB, 1);
+    r = ioctl(mapper->fd, EVIOCGRAB, 1);
+    if (r < 0) {
+        perror("Failed to grab device");
+        exit(1);
+    }
 
     shifted=0;
     if (axis->flags&FLAG_SHIFT) shifted=1;
@@ -340,7 +352,7 @@ void remap_axis(struct program_axis_remap *axis) {
 
 void remap_button(struct program_button_remap *btn) {
     struct mapping *mapper;
-    int i, shifted;
+    int i, shifted, r;
 
     if (btn->program!=PROGRAM_BUTTON_REMAP) return;
     if (btn->srcbutton>KEY_MAX) return;
@@ -355,7 +367,11 @@ void remap_button(struct program_button_remap *btn) {
     
     if (mapper==NULL) return;
     mapper->mapped=1;
-    ioctl(mapper->fd, EVIOCGRAB, 1);
+    r = ioctl(mapper->fd, EVIOCGRAB, 1);
+    if (r < 0) {
+        perror("Failed to grab device");
+        exit(1);
+    }
 
     shifted=0;
     if (btn->flags&FLAG_SHIFT) shifted=1;

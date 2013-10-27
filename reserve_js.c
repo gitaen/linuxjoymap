@@ -10,6 +10,22 @@
 #define NUM_JOYSTICKS 10
 #define WAIT_TIME 10
 
+#define check_ioctl(x, y, z)\
+    r = ioctl(x, y, z);\
+    if (r < 0) {\
+        fprintf(stderr, "Failed to perform ioctl\n");\
+        perror("Error");\
+        exit(1);\
+    }
+
+#define check_ioctl2(x, y)\
+    r = ioctl(x, y);\
+    if (r < 0) {\
+        fprintf(stderr, "Failed to perform ioctl\n");\
+        perror("Error");\
+        exit(1);\
+    }
+
 void register_devices() {
     int i, j;
     struct uinput_user_dev dev;
@@ -17,17 +33,17 @@ void register_devices() {
     for (i=0; i<NUM_JOYSTICKS; i++) {
         fd[i] = open(get_config(UINPUT_DEV), O_WRONLY);
         if (fd[i] < 0) {
-            fprintf(stderr, "Failed to open %s:", get_config(UINPUT_DEV));
+            fprintf(stderr, "Failed to open %s:\n", get_config(UINPUT_DEV));
             perror("Error");
             exit(1);
         }
-        ioctl(fd[i], UI_SET_EVBIT, EV_KEY);
-        ioctl(fd[i], UI_SET_EVBIT, EV_ABS);
-        ioctl(fd[i], UI_SET_ABSBIT, ABS_X);
-        ioctl(fd[i], UI_SET_ABSBIT, ABS_Y);
-        ioctl(fd[i], UI_SET_ABSBIT, ABS_RUDDER);
-        ioctl(fd[i], UI_SET_KEYBIT, BTN_JOYSTICK+0);
-        ioctl(fd[i], UI_SET_KEYBIT, BTN_JOYSTICK+1);
+        check_ioctl(fd[i], UI_SET_EVBIT, EV_KEY);
+        check_ioctl(fd[i], UI_SET_EVBIT, EV_ABS);
+        check_ioctl(fd[i], UI_SET_ABSBIT, ABS_X);
+        check_ioctl(fd[i], UI_SET_ABSBIT, ABS_Y);
+        check_ioctl(fd[i], UI_SET_ABSBIT, ABS_RUDDER);
+        check_ioctl(fd[i], UI_SET_KEYBIT, BTN_JOYSTICK+0);
+        check_ioctl(fd[i], UI_SET_KEYBIT, BTN_JOYSTICK+1);
 
         memset(&dev, 0, sizeof(dev));
         sprintf(dev.name, "JOYMAP Joystick %d", i);
@@ -44,15 +60,20 @@ void register_devices() {
             dev.absfuzz[i] = 0;
             dev.absflat[j] = 0;
         }
-        write(fd[i], &dev, sizeof(dev));
+        r = write(fd[i], &dev, sizeof(dev));
+        if (r != sizeof(dev)) {
+            fprintf(stderr, "Failed to write device\n");
+            perror("Error");
+            exit(1);
+        }
 
-        ioctl(fd[i], UI_DEV_CREATE);
+        check_ioctl2(fd[i], UI_DEV_CREATE);
     }
 
     sleep(WAIT_TIME);
 
     for (i=0; i<NUM_JOYSTICKS; i++) {
-        ioctl(fd[i], UI_DEV_DESTROY);
+        check_ioctl2(fd[i], UI_DEV_DESTROY);
         close(fd[i]);
     }
 }
