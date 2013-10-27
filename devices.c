@@ -186,10 +186,10 @@ void register_devices() {
     safe_ioctl3(code_fd, UI_SET_EVBIT, EV_ABS);
     for (j=0; j<ABS_MAX; j++)
         safe_ioctl3(code_fd, UI_SET_ABSBIT, j);
-    for (j=0; j<KEY_MAX; j++)
-        if (j>=BTN_JOYSTICK)
-        if ((j!=BTN_TOUCH)&&(j!=BTN_TOOL_FINGER)) //make sure we don't get matched as some other device
-            safe_ioctl3(code_fd, UI_SET_KEYBIT, j);
+    // We have to stop at BTN_DIGI to be matched as a joystick device
+    // That gives at most 32 buttons
+    for (j=BTN_JOYSTICK; j<BTN_DIGI; j++)
+        safe_ioctl3(code_fd, UI_SET_KEYBIT, j);
 
     sprintf(dev.name, "JOYMAP Code Device");
 

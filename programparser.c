@@ -72,7 +72,7 @@ struct symbol symbol_table[MAX_SYMBOLS]={
     {"js15.a", 0x0F00+0x1000, 64, JS_FLAG}, 
     {"js15.b", 0x0F00, 128, JS_FLAG}, 
     {"a", 0, 64, CODEA_FLAG}, 
-    {"b", 0, 128, CODEB_FLAG}, 
+    {"b", 0, 32, CODEB_FLAG}, 
     {"firstscan", 0, 1, GP_FLAG},
     {"clocktick", 1, 1, GP_FLAG},
     {"xrel", 2, 1, GP_FLAG},
