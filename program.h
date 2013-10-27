@@ -34,6 +34,10 @@
 #define JOYSTICK_CODE_PRODUCT	0
 
 #define MAX_CODE_SIZE		16384
+// sigh ... we get out of memory on opening the event stream
+// if the number of axes is too large (64)
+#define MAX_AXES            16
+#define MAX_BUTTONS         32
 
 //virtual machine instructions
 #define HALT	0
