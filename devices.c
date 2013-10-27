@@ -155,7 +155,7 @@ void register_devices() {
     safe_write(mouse_fd, &dev, sizeof(dev));
 
     safe_ioctl2(mouse_fd, UI_DEV_CREATE);
-    
+
     //now the keyboard
     memset(&dev, 0, sizeof(dev));
     kbd_fd = valid_open(get_config(UINPUT_DEV), O_WRONLY);
@@ -166,7 +166,7 @@ void register_devices() {
     safe_ioctl3(kbd_fd, UI_SET_LEDBIT, LED_NUML);
     safe_ioctl3(kbd_fd, UI_SET_LEDBIT, LED_CAPSL);
     safe_ioctl3(kbd_fd, UI_SET_LEDBIT, LED_SCROLLL);
-    for (i=0; i<512; i++) 
+    for (i=0; i<512; i++)
         safe_ioctl3(kbd_fd, UI_SET_KEYBIT, i);
 
     sprintf(dev.name, "JOYMAP Keyboard");
@@ -376,7 +376,7 @@ int calibrate(int j, int v) {
     if (v<devices[j].cal.min) devices[j].cal.min=v;
     if (v>devices[j].cal.max) devices[j].cal.max=v;
     if (devices[j].cal.min==devices[j].cal.max)
-        return v;        
+        return v;
     v=(v-devices[j].cal.min)*65536/devices[j].cal.max-devices[j].cal.min-32767;
     v=(v*32768)/(32768-cal_error);
     return v;

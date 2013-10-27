@@ -1,6 +1,6 @@
 /*
  * Joystick remapper for the input driver suite.
- * by Alexandre Hardy 
+ * by Alexandre Hardy
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ struct mapping *events[MAX_EVENTS];
 //our joysticks are vendor 0xff and product 0x01 and must not be handled
 //our mice are vendor 0xff and product 0x02 and must not be handled
 //our kbd are vendor 0xff and product 0x03 and must not be handled
-//the code joystick is 0xff and product 0x00 
+//the code joystick is 0xff and product 0x00
 //the code joystick must be handled by our code
 void install_event_handlers() {
     int i, j, r;
@@ -132,8 +132,8 @@ void poll_joystick_loop() {
                 if (rb>0)
                 for (j=0; j<(int)(rb/sizeof(struct input_event)); j++) {
                     if (ev[j].type==EV_KEY) {
-                        if ((ev[j].code >= BTN_MISC) && (ev[j].value != 2)) 
-                            process_key(poll_mapper[i], ev[j].code, ev[j].value); 
+                        if ((ev[j].code >= BTN_MISC) && (ev[j].value != 2))
+                            process_key(poll_mapper[i], ev[j].code, ev[j].value);
                     }
                     if (ev[j].type==EV_ABS)
                         process_axis(poll_mapper[i], ev[j].code, ev[j].value);
@@ -189,7 +189,7 @@ static void process_key(struct mapping *mapper, int key, int value) {
     else return;
     if (button_remap==NULL) return;
     if (button_remap[key]==NULL) return;
-    
+
     j=button_remap[key]->device&0x0F;
     switch (button_remap[key]->device&0xF0) {
         case DEVICE_JOYSTICK:
@@ -207,8 +207,8 @@ static void process_key(struct mapping *mapper, int key, int value) {
                 //it is an axis
                 if (value==1) value=32767;
                 if (button_remap[key]->flags&FLAG_INVERT) value=-value;
-                set_joy_axis(j, button_remap[key]->sequence[0], value);        
-            } 
+                set_joy_axis(j, button_remap[key]->sequence[0], value);
+            }
             break;
         case DEVICE_MOUSE:
             if (button_remap[key]->type==TYPE_BUTTON) {
@@ -224,13 +224,13 @@ static void process_key(struct mapping *mapper, int key, int value) {
             } else if (button_remap[key]->type==TYPE_AXIS) {
                 //it is an axis
                 if (button_remap[key]->flags&FLAG_INVERT) value=-value;
-                if (button_remap[key]->sequence[0]==ABS_X) 
+                if (button_remap[key]->sequence[0]==ABS_X)
                     move_mouse_x(value);
-                if (button_remap[key]->sequence[0]==ABS_Y) 
+                if (button_remap[key]->sequence[0]==ABS_Y)
                     move_mouse_y(value);
-                if (button_remap[key]->sequence[0]==ABS_WHEEL) 
+                if (button_remap[key]->sequence[0]==ABS_WHEEL)
                     move_mouse_wheel(value);
-            } 
+            }
             break;
         case DEVICE_KBD:
             if (button_remap[key]->type==TYPE_BUTTON) {
@@ -243,7 +243,7 @@ static void process_key(struct mapping *mapper, int key, int value) {
                         press_key(button, 0);
                     }
                 }
-            }    
+            }
             break;
     }
 }
@@ -275,8 +275,8 @@ static void process_axis(struct mapping *mapper, int axis, int value) {
             } else if (axes_remap[axis]->type==TYPE_AXIS) {
                 //it is an axis
                 if (axes_remap[axis]->flags&FLAG_INVERT) value=-value;
-                set_joy_axis(j, axes_remap[axis]->axis, value);        
-            } 
+                set_joy_axis(j, axes_remap[axis]->axis, value);
+            }
             break;
         case DEVICE_MOUSE:
             if (axes_remap[axis]->type==TYPE_BUTTON) {
@@ -297,13 +297,13 @@ static void process_axis(struct mapping *mapper, int axis, int value) {
                 if (axes_remap[axis]->flags&FLAG_INVERT) value=-value;
                 //if (value>0) value=1;
                 //if (value<0) value=-1;
-                if (axes_remap[axis]->axis==ABS_X) 
+                if (axes_remap[axis]->axis==ABS_X)
                     move_mouse_x(value);
-                if (axes_remap[axis]->axis==ABS_Y) 
+                if (axes_remap[axis]->axis==ABS_Y)
                     move_mouse_y(value);
-                if (axes_remap[axis]->axis==ABS_WHEEL) 
+                if (axes_remap[axis]->axis==ABS_WHEEL)
                     move_mouse_wheel(value);
-            } 
+            }
             break;
         case DEVICE_KBD:
             if (axes_remap[axis]->type==TYPE_BUTTON) {
@@ -317,7 +317,7 @@ static void process_axis(struct mapping *mapper, int axis, int value) {
                 if (axes_remap[axis]->flags&FLAG_AUTO_RELEASE) {
                     press_key(button, 0);
                 }
-            }    
+            }
             break;
     }
 }
@@ -328,7 +328,7 @@ void remap_axis(struct program_axis_remap *axis) {
 
     if (axis->program!=PROGRAM_AXIS_REMAP) return;
     if (axis->srcaxis>ABS_MAX) return;
-    
+
     mapper=NULL;
     for (i=0; i<MAX_EVENTS; i++) {
         if (events[i])
@@ -336,7 +336,7 @@ void remap_axis(struct program_axis_remap *axis) {
                (events[i]->product==axis->product))
                 mapper=events[i];
     }
-    
+
     if (mapper==NULL) return;
     mapper->mapped=1;
     r = ioctl(mapper->fd, EVIOCGRAB, 1);
@@ -356,7 +356,7 @@ void remap_button(struct program_button_remap *btn) {
 
     if (btn->program!=PROGRAM_BUTTON_REMAP) return;
     if (btn->srcbutton>KEY_MAX) return;
-    
+
     mapper=NULL;
     for (i=0; i<MAX_EVENTS; i++) {
         if (events[i])
@@ -364,7 +364,7 @@ void remap_button(struct program_button_remap *btn) {
                (events[i]->product==btn->product))
                 mapper=events[i];
     }
-    
+
     if (mapper==NULL) return;
     mapper->mapped=1;
     r = ioctl(mapper->fd, EVIOCGRAB, 1);
@@ -398,7 +398,7 @@ void set_joystick_number(__u16 vendor, __u16 product, int device) {
                (events[i]->product==product))
                 mapper=events[i];
     }
-    
+
     if (mapper==NULL) return;
     mapper->mapped=1;
     mapper->jsnum=device;

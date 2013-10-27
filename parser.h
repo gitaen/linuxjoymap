@@ -53,7 +53,7 @@ struct token {
 };
 
 struct reserved {
-	char *token; 
+	char *token;
 	int value;
 };
 

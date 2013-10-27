@@ -1,6 +1,6 @@
 /*
  * Fake joystick driver for Linux
- * by Alexandre Hardy 
+ * by Alexandre Hardy
  */
 
 /*
@@ -106,21 +106,21 @@ void code_axis(int axis, int value);
 void execute_script(void);
 
 void code_notify_button(int js, int key, int value) {
-    if ((js>=0)&&(js<16)) 
+    if ((js>=0)&&(js<16))
     if ((key-BTN_JOYSTICK>=0)&&(key-BTN_JOYSTICK<128)) {
         if (js_bit[js][key-BTN_JOYSTICK]!=value) {
             js_bit[js][key-BTN_JOYSTICK]=value;
-            execute_script();    
+            execute_script();
         }
     }
 }
 
 void code_notify_axis(int js, int axis, int value) {
-    if ((js>=0)&&(js<16)) 
+    if ((js>=0)&&(js<16))
     if ((axis>=0)&&(axis<64)) {
         if (js_analog[js][axis]!=value) {
             js_analog[js][axis]=value;
-            execute_script();    
+            execute_script();
         }
     }
 }
@@ -175,12 +175,12 @@ static int get_value(int address, int type, int array) {
     switch (type) {
         case GP:
             if (address+ofs==FIRSTSCAN) return firstscan;
-            if (address+ofs==CLOCKTICK) return clocktick;    
-            if (address+ofs==XREL) return xrel;            
-            if (address+ofs==YREL) return yrel;            
-            if (address+ofs==ZREL) return zrel;            
-            if (address+ofs==TIMESTAMP) return timestamp;//jiffies_to_msecs(jiffies);    
-            if (address+ofs==CURRENTMODE) return currentmode;    
+            if (address+ofs==CLOCKTICK) return clocktick;
+            if (address+ofs==XREL) return xrel;
+            if (address+ofs==YREL) return yrel;
+            if (address+ofs==ZREL) return zrel;
+            if (address+ofs==TIMESTAMP) return timestamp;//jiffies_to_msecs(jiffies);
+            if (address+ofs==CURRENTMODE) return currentmode;
             if ((address+ofs>=0)&&(address+ofs<256))
                 return code_thread->registers[address+ofs];
             else
@@ -199,7 +199,7 @@ static int get_value(int address, int type, int array) {
             js=(address&0x0F00)>>8;
             type=address&0xF000;
             address=address&0x00FF;
-            if (type==0) {    
+            if (type==0) {
                 if ((address+ofs>=0)&&(address+ofs<128))
                     return js_bit[js][address+ofs];
                 else
@@ -223,12 +223,12 @@ static void set_value(int address, int type, int value, int array) {
         ofs=code_thread->registers[OFSREG];
     switch (type) {
         case GP:
-            if (address==XREL) xrel=value;            
-            if (address==YREL) yrel=value;            
-            if (address==ZREL) zrel=value;            
-            if (address==CURRENTMODE) currentmode=value;    
+            if (address==XREL) xrel=value;
+            if (address==YREL) yrel=value;
+            if (address==ZREL) zrel=value;
+            if (address==CURRENTMODE) currentmode=value;
             if ((address+ofs>=0)&&(address+ofs<256))
-                code_thread->registers[address+ofs]=value;    
+                code_thread->registers[address+ofs]=value;
             break;
         case CODEA:
             if ((address+ofs>=0)&&(address+ofs<64))
@@ -309,7 +309,7 @@ static void execute_script_thread(struct code_context *new_thread, unsigned int 
                 debug("JZ\n");
                 st=pop();
                 if (st==0) code_thread->ip=value;
-                break;    
+                break;
             case JUMP:
                 debug("JUMP\n");
                 code_thread->ip=value;
@@ -320,84 +320,84 @@ static void execute_script_thread(struct code_context *new_thread, unsigned int 
                 break;
             case ADD:
                 debug("ADD\n");
-                p1=pop(); 
-                p2=pop(); 
+                p1=pop();
+                p2=pop();
                 push(p2+p1);
                 break;
             case SUB:
                 debug("SUB\n");
-                p1=pop(); 
-                p2=pop(); 
+                p1=pop();
+                p2=pop();
                 push(p2-p1);
                 break;
             case MUL:
                 debug("MUL\n");
-                p1=pop(); 
-                p2=pop(); 
+                p1=pop();
+                p2=pop();
                 push(p2*p1);
                 break;
             case DIV:
                 debug("DIV\n");
-                p1=pop(); 
-                p2=pop(); 
+                p1=pop();
+                p2=pop();
                 push(p2/p1);
                 break;
             case LT:
                 debug("LT\n");
-                p1=pop(); 
-                p2=pop(); 
+                p1=pop();
+                p2=pop();
                 push((p2<p1)?1:0);
                 break;
             case LE:
                 debug("LE\n");
-                p1=pop(); 
-                p2=pop(); 
+                p1=pop();
+                p2=pop();
                 push((p2<=p1)?1:0);
                 break;
             case GT:
                 debug("GT\n");
-                p1=pop(); 
-                p2=pop(); 
+                p1=pop();
+                p2=pop();
                 push((p2>p1)?1:0);
                 break;
             case GE:
                 debug("GE\n");
-                p1=pop(); 
-                p2=pop(); 
+                p1=pop();
+                p2=pop();
                 push((p2>=p1)?1:0);
                 break;
             case EQ:
                 debug("EQ\n");
-                p1=pop(); 
-                p2=pop(); 
+                p1=pop();
+                p2=pop();
                 push((p2==p1)?1:0);
                 break;
             case NEQ:
                 debug("NEQ\n");
-                p1=pop(); 
-                p2=pop(); 
+                p1=pop();
+                p2=pop();
                 push((p2!=p1)?1:0);
                 break;
             case AND:
                 debug("AND\n");
-                p1=pop(); 
-                p2=pop(); 
+                p1=pop();
+                p2=pop();
                 push((p2&&p1)?1:0);
                 break;
             case OR:
                 debug("OR\n");
-                p1=pop(); 
-                p2=pop(); 
+                p1=pop();
+                p2=pop();
                 push((p2||p1)?1:0);
                 break;
             case NOT:
                 debug("NOT\n");
-                p1=pop(); 
+                p1=pop();
                 push((!p1)?1:0);
                 break;
             case NEG:
                 debug("NEG\n");
-                p1=pop(); 
+                p1=pop();
                 push(-p1);
                 break;
             case PUSH:
@@ -483,7 +483,7 @@ int mapper_code_install(void) {
     for (j=0; j<16; j++) {
         for (i=0; i<64; i++) {
             js_analog[j][i]=0;
-        }    
+        }
         for (i=0; i<128; i++) {
             js_bit[j][i]=0;
         }

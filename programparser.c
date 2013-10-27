@@ -39,40 +39,40 @@ struct symbol {
 #define CODEA_FLAG (CODEA<<5)
 #define CODEB_FLAG (CODEB<<5)
 struct symbol symbol_table[MAX_SYMBOLS]={
-    {"js0.a", 0x0000+0x1000, 64, JS_FLAG}, 
-    {"js0.b", 0x0000, 128, JS_FLAG}, 
-    {"js1.a", 0x0100+0x1000, 64, JS_FLAG}, 
-    {"js1.b", 0x0100, 128, JS_FLAG}, 
-    {"js2.a", 0x0200+0x1000, 64, JS_FLAG}, 
-    {"js2.b", 0x0200, 128, JS_FLAG}, 
-    {"js3.a", 0x0300+0x1000, 64, JS_FLAG}, 
-    {"js3.b", 0x0300, 128, JS_FLAG}, 
-    {"js4.a", 0x0400+0x1000, 64, JS_FLAG}, 
-    {"js4.b", 0x0400, 128, JS_FLAG}, 
-    {"js5.a", 0x0500+0x1000, 64, JS_FLAG}, 
-    {"js5.b", 0x0500, 128, JS_FLAG}, 
-    {"js6.a", 0x0600+0x1000, 64, JS_FLAG}, 
-    {"js6.b", 0x0600, 128, JS_FLAG}, 
-    {"js7.a", 0x0700+0x1000, 64, JS_FLAG}, 
-    {"js7.b", 0x0700, 128, JS_FLAG}, 
-    {"js8.a", 0x0800+0x1000, 64, JS_FLAG}, 
-    {"js8.b", 0x0800, 128, JS_FLAG}, 
-    {"js9.a", 0x0900+0x1000, 64, JS_FLAG}, 
-    {"js9.b", 0x0900, 128, JS_FLAG}, 
-    {"js10.a", 0x0A00+0x1000, 64, JS_FLAG}, 
-    {"js10.b", 0x0A00, 128, JS_FLAG}, 
-    {"js11.a", 0x0B00+0x1000, 64, JS_FLAG}, 
-    {"js11.b", 0x0B00, 128, JS_FLAG}, 
-    {"js12.a", 0x0C00+0x1000, 64, JS_FLAG}, 
-    {"js12.b", 0x0C00, 128, JS_FLAG}, 
-    {"js13.a", 0x0D00+0x1000, 64, JS_FLAG}, 
-    {"js13.b", 0x0D00, 128, JS_FLAG}, 
-    {"js14.a", 0x0E00+0x1000, 64, JS_FLAG}, 
-    {"js14.b", 0x0E00, 128, JS_FLAG}, 
-    {"js15.a", 0x0F00+0x1000, 64, JS_FLAG}, 
-    {"js15.b", 0x0F00, 128, JS_FLAG}, 
-    {"a", 0, 64, CODEA_FLAG}, 
-    {"b", 0, 32, CODEB_FLAG}, 
+    {"js0.a", 0x0000+0x1000, 64, JS_FLAG},
+    {"js0.b", 0x0000, 128, JS_FLAG},
+    {"js1.a", 0x0100+0x1000, 64, JS_FLAG},
+    {"js1.b", 0x0100, 128, JS_FLAG},
+    {"js2.a", 0x0200+0x1000, 64, JS_FLAG},
+    {"js2.b", 0x0200, 128, JS_FLAG},
+    {"js3.a", 0x0300+0x1000, 64, JS_FLAG},
+    {"js3.b", 0x0300, 128, JS_FLAG},
+    {"js4.a", 0x0400+0x1000, 64, JS_FLAG},
+    {"js4.b", 0x0400, 128, JS_FLAG},
+    {"js5.a", 0x0500+0x1000, 64, JS_FLAG},
+    {"js5.b", 0x0500, 128, JS_FLAG},
+    {"js6.a", 0x0600+0x1000, 64, JS_FLAG},
+    {"js6.b", 0x0600, 128, JS_FLAG},
+    {"js7.a", 0x0700+0x1000, 64, JS_FLAG},
+    {"js7.b", 0x0700, 128, JS_FLAG},
+    {"js8.a", 0x0800+0x1000, 64, JS_FLAG},
+    {"js8.b", 0x0800, 128, JS_FLAG},
+    {"js9.a", 0x0900+0x1000, 64, JS_FLAG},
+    {"js9.b", 0x0900, 128, JS_FLAG},
+    {"js10.a", 0x0A00+0x1000, 64, JS_FLAG},
+    {"js10.b", 0x0A00, 128, JS_FLAG},
+    {"js11.a", 0x0B00+0x1000, 64, JS_FLAG},
+    {"js11.b", 0x0B00, 128, JS_FLAG},
+    {"js12.a", 0x0C00+0x1000, 64, JS_FLAG},
+    {"js12.b", 0x0C00, 128, JS_FLAG},
+    {"js13.a", 0x0D00+0x1000, 64, JS_FLAG},
+    {"js13.b", 0x0D00, 128, JS_FLAG},
+    {"js14.a", 0x0E00+0x1000, 64, JS_FLAG},
+    {"js14.b", 0x0E00, 128, JS_FLAG},
+    {"js15.a", 0x0F00+0x1000, 64, JS_FLAG},
+    {"js15.b", 0x0F00, 128, JS_FLAG},
+    {"a", 0, 64, CODEA_FLAG},
+    {"b", 0, 32, CODEB_FLAG},
     {"firstscan", 0, 1, GP_FLAG},
     {"clocktick", 1, 1, GP_FLAG},
     {"xrel", 2, 1, GP_FLAG},
@@ -369,7 +369,7 @@ static struct token parse_id() {
         nc=peekchar();
     }
     t.value[pos]='\0';
-    
+
     nc=0;
     while (reserved[nc].token!=NULL) {
         if (strcmp(reserved[nc].token, t.value)==0) {
@@ -490,9 +490,9 @@ static struct token programtoken() {
     char message[256];
     while (skip) {
         nc=peekchar();
-        if (nc=='#') 
+        if (nc=='#')
             parse_comment();
-        else if (isspace(nc)) 
+        else if (isspace(nc))
             skipwhite();
         else skip=0;
     }
@@ -533,7 +533,7 @@ static struct token programtoken() {
 static void seek_endstmt() {
     struct token t;
     t=peektoken();
-    while ((t.type!=';')&&(t.type!='}')&&(t.type!=EOF)) { 
+    while ((t.type!=';')&&(t.type!='}')&&(t.type!=EOF)) {
         eattoken();
         t=peektoken();
     }
@@ -651,7 +651,7 @@ static void parse_term() {
                 emit1(DIV);
                 break;
             case '%':
-                emitt(POP,y); 
+                emitt(POP,y);
                 emitt(POP,x);
                 emitt(PUSH,x);
                 emitt(PUSH,y);
@@ -855,9 +855,9 @@ static void parse_if() {
 static void parse_while() {
     struct token t;
     int start, fin=0, cond;
-    start=ip; 
+    start=ip;
     parse_condition();
-    cond=ip; 
+    cond=ip;
     emitc(JZ, fin);
     t=peektoken();
     if (t.type=='{') {
@@ -1068,7 +1068,7 @@ static void parse_halt() {
     if (name.type==ID) {
         eattoken();
         get_thread(name.value);
-        emitc(JOIN,threadnum); 
+        emitc(JOIN,threadnum);
     } else {
         emit1(HALT);
     }

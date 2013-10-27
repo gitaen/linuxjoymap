@@ -23,14 +23,14 @@ int main(int argc, char *argv[]) {
     ++argv, --argc;  /* skip over program name */
 
     if (strcmp(argv[0], "-8")==0) {
-        ++argv, --argc; 
+        ++argv, --argc;
         mult=256;
         div=1;
         ofs=32767;
     }
 
     if (strcmp(argv[0], "-d")==0) {
-        ++argv, --argc; 
+        ++argv, --argc;
         set_dynamic_calibrate(1);
     }
 
@@ -61,10 +61,10 @@ int main(int argc, char *argv[]) {
         sleep(1);
         install_event_handlers();
         printf("%d button assignments.\n", nbuttons);
-        for (i=0; i<nbuttons; i++) 
+        for (i=0; i<nbuttons; i++)
             remap_button(&buttons[i]);
         printf("%d axes assignments.\n", naxes);
-        for (i=0; i<naxes; i++) 
+        for (i=0; i<naxes; i++)
             remap_axis(&axes[i]);
         for (i=0; i<nscript; i++) {
             set_joystick_number(scriptassign[i].vendor, scriptassign[i].product, scriptassign[i].device);
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
     } else {
         printf("Error in map file, nothing done.\n");
         return 1;
-    }    
+    }
 
     while (1) {
         poll_joystick_loop();

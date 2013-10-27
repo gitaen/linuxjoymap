@@ -54,10 +54,10 @@ static char key_value[1024];
 char *get_current(dictionary d) {
     if (d==NULL) return NULL;
     strcpy(key_value, d->key);
-    strcat(key_value, "=\""); 
-    strcat(key_value, d->value); 
-    strcat(key_value, "\""); 
-    return key_value; 
+    strcat(key_value, "=\"");
+    strcat(key_value, d->value);
+    strcat(key_value, "\"");
+    return key_value;
 }
 
 dictionary next_entry(dictionary d) {

@@ -27,7 +27,7 @@ static char *known_keys[]={
     "id",
     "vendor",
     "product",
-    "src", 
+    "src",
     "target",
     "axis",
     "plus",
@@ -63,7 +63,7 @@ struct joystick joysticks[8];
 
 static int base=0;
 
-static char *id, *vendor, *product, *src, *target, *button, *device, *flags, *axis, *plus, *minus; 
+static char *id, *vendor, *product, *src, *target, *button, *device, *flags, *axis, *plus, *minus;
 static char compile[256]="";
 
 static int ishex(char *s) {
@@ -193,7 +193,7 @@ static void parse_sequence(__u16 *sequence, char *s, int base, int type) {
             else {
                 i=0;
                 while (keymap[i].value!=-1) {
-                    if (strcmp(keymap[i].key, s)==0) 
+                    if (strcmp(keymap[i].key, s)==0)
                         value=keymap[i].value;
                     i++;
                 }
@@ -379,7 +379,7 @@ static struct token parse_id(struct token t, int pos) {
     if (nc!='=') {
         report("Expected an \"=\"");
     } else eatchar();
-    
+
     return t;
 }
 
@@ -428,9 +428,9 @@ static struct token maptoken() {
     char message[256];
     while (skip) {
         nc=peekchar();
-        if (nc=='#') 
+        if (nc=='#')
             parse_comment();
-        else if ((nc!='\n')&&isspace(nc)) 
+        else if ((nc!='\n')&&isspace(nc))
             skipwhite();
         else skip=0;
     }
@@ -544,7 +544,7 @@ static void parse_shift() {
             map.flags=FLAG_NONE;
             buttons[nbuttons]=map;
             nbuttons++;
-        }    
+        }
     }
     free_dictionary(dict);
     dict=NULL;
@@ -568,13 +568,13 @@ static void parse_script() {
             if (id!=NULL)
                 script.id=numeric(id);
             else
-                script.id=-1;    
+                script.id=-1;
             script.vendor=numeric(vendor);
             script.product=numeric(product);
             script.device=numeric(device);
             scriptassign[nscript]=script;
             nscript++;
-        }    
+        }
     }
     free_dictionary(dict);
     dict=NULL;
