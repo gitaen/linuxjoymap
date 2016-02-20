@@ -1,17 +1,15 @@
-This is pdfTeXk, Version 3.1415926-1.40.9 (Web2C 7.5.7) (format=latex 2009.7.2)  12 JUL 2009 18:32
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.11)  20 FEB 2016 20:37
 entering extended mode
+ restricted \write18 enabled.
  %&-line parsing enabled.
 **program.tex
 (./program.tex
-LaTeX2e <2005/12/01>
-Babel <v3.8l> and hyphenation patterns for english, usenglishmax, dumylang, noh
-yphenation, german-x-2008-06-18, ngerman-x-2008-06-18, ancientgreek, ibycus, ba
-sque, catalan, dutch, french, galician, german, ngerman, monogreek, greek, ital
-ian, latin, spanish, ukenglish, loaded.
-(/usr/local/texlive/2008/texmf-dist/tex/latex/base/article.cls
-Document Class: article 2005/09/16 v1.4f Standard LaTeX document class
-(/usr/local/texlive/2008/texmf-dist/tex/latex/base/size10.clo
-File: size10.clo 2005/09/16 v1.4f Standard LaTeX file (size option)
+LaTeX2e <2015/01/01>
+Babel <3.9l> and hyphenation patterns for 79 languages loaded.
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/size10.clo
+File: size10.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
 )
 \c@part=\count79
 \c@section=\count80
@@ -67,56 +65,72 @@ Underfull \hbox (badness 10000) in paragraph at lines 45--49
 
 [1
 
-]
-LaTeX Font Info:    Try loading font information for OMS+cmr on input line 90.
- (/usr/local/texlive/2008/texmf-dist/tex/latex/base/omscmr.fd
-File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 94.
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 90.
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 94.
  [2]
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 141.
+(Font)              <7> on input line 145.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 141.
- [3]
-[4]
-LaTeX Font Info:    Try loading font information for OMS+cmtt on input line 214
+(Font)              <5> on input line 145.
+ [3] [4]
+LaTeX Font Info:    Try loading font information for OMS+cmtt on input line 218
 .
-LaTeX Font Info:    No file OMScmtt.fd. on input line 214.
+LaTeX Font Info:    No file OMScmtt.fd. on input line 218.
 
 
 LaTeX Font Warning: Font shape `OMS/cmtt/m/n' undefined
 (Font)              using `OMS/cmsy/m/n' instead
-(Font)              for symbol `textbraceleft' on input line 214.
+(Font)              for symbol `textbraceleft' on input line 218.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 221--224
+Underfull \hbox (badness 10000) in paragraph at lines 225--228
 
  []
 
 [5]
-Underfull \hbox (badness 10000) in paragraph at lines 280--298
+Underfull \hbox (badness 10000) in paragraph at lines 284--302
 
  []
 
-[6]
-Underfull \hbox (badness 10000) in paragraph at lines 349--353
+[6] [7]
+Underfull \hbox (badness 10000) in paragraph at lines 353--357
 
  []
 
-[7] [8] [9] [10] [11] (./program.aux)
+[8] [9] [10] [11] (./program.aux)
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
  ) 
 Here is how much of TeX's memory you used:
- 264 strings out of 494783
- 2981 string characters out of 1173004
- 51416 words of memory out of 3000000
- 3554 multiletter control sequences out of 10000+50000
- 8270 words of font info for 30 fonts, out of 3000000 for 5000
- 147 hyphenation exceptions out of 8191
- 23i,6n,20p,145b,239s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 265 strings out of 493089
+ 2995 string characters out of 6134841
+ 59199 words of memory out of 5000000
+ 3818 multiletter control sequences out of 15000+600000
+ 8270 words of font info for 30 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 23i,6n,20p,140b,239s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb
+></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb>
+</usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></
+usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></us
+r/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/
+local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/lo
+cal/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local
+/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/
+texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/t
+exlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/te
+xlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on program.pdf (11 pages, 146525 bytes).
+PDF statistics:
+ 84 PDF objects out of 1000 (max. 8388607)
+ 59 compressed objects within 1 object stream
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
-Output written on program.dvi (11 pages, 24368 bytes).
