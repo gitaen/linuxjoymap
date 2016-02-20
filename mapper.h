@@ -34,7 +34,7 @@ void release_mouse_buttons(void);
 void release_keys(void);
 void remap_button(struct program_button_remap *btn);
 void remap_axis(struct program_axis_remap *axis);
-void set_joystick_number(__u16 vendor, __u16 product, int device);
+void set_joystick_number(__uint16_t vendor, __uint16_t product, int device);
 int mapper_code_install(void);
 int mapper_code_uninstall(void);
 void program_run();

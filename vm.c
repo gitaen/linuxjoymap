@@ -22,9 +22,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <linux/input.h>
 #include "program.h"
 #include "mapper.h"
+#include "clock.h"
+#include "keys.h"
 
 #define INTERVAL    50
 #define STACK_SIZE    1024
@@ -36,23 +37,25 @@
 static int installed=0;
 
 static int timestamp=0;
+static int tick=0;
+static __uint64_t started=0;
 static int executing=0;
 
 //controller variables
-static __s16 code_analog[64];
+static __int16_t code_analog[64];
 //controller variables
-static __u8 code_bit[128];
+static __uint8_t code_bit[128];
 //controller variables
-static __s16 js_analog[16][64];
+static __int16_t js_analog[16][64];
 //controller variables
-static __u8 js_bit[16][128];
-static __s16 currentmode=0;
-static __s16 firstscan=1;
-static __s16 clocktick=1;
-static __s16 xrel=0;
-static __s16 yrel=0;
-static __s16 zrel=0;
-static __u8 code[MAX_CODE_SIZE];
+static __uint8_t js_bit[16][128];
+static __int16_t currentmode=0;
+static __int16_t firstscan=1;
+static __int16_t clocktick=1;
+static __int16_t xrel=0;
+static __int16_t yrel=0;
+static __int16_t zrel=0;
+static __uint8_t code[MAX_CODE_SIZE];
 //registers inaccessible to user
 //allocated by compiler
 static int status=0;        //0 = no valid program 1=valid program
@@ -110,7 +113,7 @@ void code_notify_button(int js, int key, int value) {
     if ((key-BTN_JOYSTICK>=0)&&(key-BTN_JOYSTICK<128)) {
         if (js_bit[js][key-BTN_JOYSTICK]!=value) {
             js_bit[js][key-BTN_JOYSTICK]=value;
-            execute_script();
+            program_run();
         }
     }
 }
@@ -120,7 +123,7 @@ void code_notify_axis(int js, int axis, int value) {
     if ((axis>=0)&&(axis<64)) {
         if (js_analog[js][axis]!=value) {
             js_analog[js][axis]=value;
-            execute_script();
+            program_run();
         }
     }
 }
@@ -156,6 +159,7 @@ void code_reset(void) {
     firstscan=1;
     currentmode=0;
     timestamp=0;
+    started=0;
 }
 
 static void push(int x) {
@@ -179,10 +183,22 @@ static int get_value(int address, int type, int array) {
             if (address+ofs==XREL) return xrel;
             if (address+ofs==YREL) return yrel;
             if (address+ofs==ZREL) return zrel;
-            if (address+ofs==TIMESTAMP) return timestamp;//jiffies_to_msecs(jiffies);
+            if (address+ofs==TIMESTAMP) return timestamp;
             if (address+ofs==CURRENTMODE) return currentmode;
             if ((address+ofs>=0)&&(address+ofs<256))
                 return code_thread->registers[address+ofs];
+            else
+                return 0;
+        case GLOBAL:
+            if (address+ofs==FIRSTSCAN) return firstscan;
+            if (address+ofs==CLOCKTICK) return clocktick;
+            if (address+ofs==XREL) return xrel;
+            if (address+ofs==YREL) return yrel;
+            if (address+ofs==ZREL) return zrel;
+            if (address+ofs==TIMESTAMP) return timestamp;
+            if (address+ofs==CURRENTMODE) return currentmode;
+            if ((address+ofs>=0)&&(address+ofs<256))
+                return code_threads[0].registers[address+ofs];
             else
                 return 0;
         case CODEA:
@@ -229,6 +245,14 @@ static void set_value(int address, int type, int value, int array) {
             if (address==CURRENTMODE) currentmode=value;
             if ((address+ofs>=0)&&(address+ofs<256))
                 code_thread->registers[address+ofs]=value;
+            break;
+        case GLOBAL:
+            if (address==XREL) xrel=value;
+            if (address==YREL) yrel=value;
+            if (address==ZREL) zrel=value;
+            if (address==CURRENTMODE) currentmode=value;
+            if ((address+ofs>=0)&&(address+ofs<256))
+                code_threads[0].registers[address+ofs]=value;
             break;
         case CODEA:
             if ((address+ofs>=0)&&(address+ofs<64))
@@ -287,10 +311,10 @@ static void execute_script_thread(struct code_context *new_thread, unsigned int 
     }
     while ((code_thread->ip<MAX_CODE_SIZE)&&(instr_exec<100000)) {
         task=code[code_thread->ip++];
-        if (task>=PUSHA) array=1;
-        else array=0;
         type=task >> 5;
         task=task&31;
+        if (task>=PUSHA) array=1;
+        else array=0;
         if ((task>=0)&&(task<=INCA))
         if (has_operand[task]) {
             address=*((unsigned short *)(code+code_thread->ip));
@@ -517,10 +541,20 @@ void code_axis(int axis, int value) {
     }
 }
 
-#define INTERVAL 50
 void program_run() {
-    timestamp+=INTERVAL;
-    clocktick=1;
+    int new_tick;
+
+    if (started == 0)
+        started = clock_millis();
+
+    timestamp = clock_millis() - started;
+    new_tick = timestamp / INTERVAL;
+
+    if (tick != new_tick)
+        clocktick=1;
+    else
+        clocktick=0;
+    tick = new_tick;
 
     debug("timertick %d\n", timestamp);
     execute_script();

@@ -41,6 +41,7 @@
 #define SCRIPT	288
 #define JOYSTICK 289
 #define JOYSTICKS 290
+#define GLOBALVAR 291
 #define ERROR	10000
 
 #define MAX_SYMBOLS	512

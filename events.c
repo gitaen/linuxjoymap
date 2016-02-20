@@ -10,6 +10,7 @@
 
 
 #include <fcntl.h>
+#include <sys/types.h>
 #include <linux/input.h>
 #include <unistd.h>
 #include <poll.h>
@@ -37,8 +38,8 @@ struct shift_map {
 
 struct mapping {
     int fd; /* /dev/input/event* file descriptor */
-    __u16 vendor;
-    __u16 product;
+    __uint16_t vendor;
+    __uint16_t product;
     int jsnum;
     int mapped;
     //two maps, one for shifted, and one for not shifted
@@ -46,9 +47,9 @@ struct mapping {
 };
 
 static int shifted=0;
-static __u16 shift_vendor;
-static __u16 shift_product;
-static __u16 shift_button;
+static __uint16_t shift_vendor;
+static __uint16_t shift_product;
+static __uint16_t shift_button;
 struct mapping *events[MAX_EVENTS];
 
 //install after creating joysticks and code joystick
@@ -252,27 +253,48 @@ static void process_key(struct mapping *mapper, int key, int value) {
 
 static void process_axis(struct mapping *mapper, int axis, int value) {
     int button=0;
-    int j;
+    int i, j;
     struct program_axis_remap **axes_remap;
+    __uint16_t *sequence;
+    int release = 0;
 
     if ((mapper->vendor!=0x00ff)||(mapper->product!=0x0000))
         code_notify_axis(mapper->jsnum, axis, value);
+
     axes_remap=mapper->map[shifted].axes;
     if (axes_remap==NULL) return;
     if (axes_remap[axis]==NULL) return;
+    if (axes_remap[axis]->flags&FLAG_BINARY) {
+        // only process the event if there is a binary change (differs in sign and non-zero)
+        if ((axes_remap[axis]->saved_value<0) && (value<=0)) {
+            return;
+        }
+        if ((axes_remap[axis]->saved_value>0) && (value>=0)) {
+            return;
+        }
+        axes_remap[axis]->saved_value=value;
+        if (value == 0)
+            //release any keys pressed
+            release = 1;
+    }
     j=axes_remap[axis]->device&0x0F;
     switch (axes_remap[axis]->device&0xF0) {
         case DEVICE_JOYSTICK:
             if (axes_remap[axis]->type==TYPE_BUTTON) {
                 //a joystick button
                 if (value<0)
-                    button=axes_remap[axis]->minus&KEYMASK;
+                    sequence=axes_remap[axis]->minus;
                 else
-                    button=axes_remap[axis]->plus&KEYMASK;
-                value=1;
-                press_joy_button(j, button, 1);
-                if (axes_remap[axis]->flags&FLAG_AUTO_RELEASE) {
-                    press_joy_button(j, button, 0);
+                    sequence=axes_remap[axis]->plus;
+                for (i=0; (i<MAX_SEQUENCE) && (sequence[i]!=SEQUENCE_DONE); i++) {
+                    button=sequence[i]&KEYMASK;
+                    if (sequence[i]&RELEASEMASK) value=0;
+                    if (release) value=0;
+                    else value=1;
+                    press_joy_button(j, button, value);
+                    if ((axes_remap[axis]->flags&FLAG_AUTO_RELEASE)&&(value==1)) {
+                        press_joy_button(j, button, 0);
+                    }
                 }
             } else if (axes_remap[axis]->type==TYPE_AXIS) {
                 //it is an axis
@@ -282,15 +304,20 @@ static void process_axis(struct mapping *mapper, int axis, int value) {
             break;
         case DEVICE_MOUSE:
             if (axes_remap[axis]->type==TYPE_BUTTON) {
-                //a joystick button
+                //a mouse button
                 if (value<0)
-                    button=axes_remap[axis]->minus&KEYMASK;
+                    sequence=axes_remap[axis]->minus;
                 else
-                    button=axes_remap[axis]->plus&KEYMASK;
-                value=1;
-                press_mouse_button(button, 1);
-                if (axes_remap[axis]->flags&FLAG_AUTO_RELEASE) {
-                    press_mouse_button(button, 0);
+                    sequence=axes_remap[axis]->plus;
+                for (i=0; (i<MAX_SEQUENCE) && (sequence[i]!=SEQUENCE_DONE); i++) {
+                    button=sequence[i]&KEYMASK;
+                    if (sequence[i]&RELEASEMASK) value=0;
+                    else value=1;
+                    if (release) value=0;
+                    press_mouse_button(button, value);
+                    if ((axes_remap[axis]->flags&FLAG_AUTO_RELEASE)&&(value==1)) {
+                        press_mouse_button(button, 0);
+                    }
                 }
             } else if (axes_remap[axis]->type==TYPE_AXIS) {
                 //it is an axis
@@ -309,15 +336,20 @@ static void process_axis(struct mapping *mapper, int axis, int value) {
             break;
         case DEVICE_KBD:
             if (axes_remap[axis]->type==TYPE_BUTTON) {
-                //a joystick button
+                //a keypress
                 if (value<0)
-                    button=axes_remap[axis]->minus&KEYMASK;
+                    sequence=axes_remap[axis]->minus;
                 else
-                    button=axes_remap[axis]->plus&KEYMASK;
-                value=1;
-                press_key(button, 1);
-                if (axes_remap[axis]->flags&FLAG_AUTO_RELEASE) {
-                    press_key(button, 0);
+                    sequence=axes_remap[axis]->plus;
+                for (i=0; (i<MAX_SEQUENCE) && (sequence[i]!=SEQUENCE_DONE); i++) {
+                    button=sequence[i]&KEYMASK;
+                    if (sequence[i]&RELEASEMASK) value=0;
+                    else value=1;
+                    if (release) value=0;
+                    press_key(button, value);
+                    if ((axes_remap[axis]->flags&FLAG_AUTO_RELEASE)&&(value==1)) {
+                        press_key(button, 0);
+                    }
                 }
             }
             break;
@@ -390,7 +422,7 @@ void remap_button(struct program_button_remap *btn) {
     }
 }
 
-void set_joystick_number(__u16 vendor, __u16 product, int device) {
+void set_joystick_number(__uint16_t vendor, __uint16_t product, int device) {
     struct mapping *mapper;
     int i;
     mapper=NULL;

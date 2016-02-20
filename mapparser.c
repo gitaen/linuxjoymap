@@ -122,17 +122,29 @@ static int get_device(char *s) {
 }
 
 static int get_type(char *s, dictionary d) {
-    char *button, *axis;
+    char *button, *axis, *plus, *minus;
     if (s==NULL) return 255;
     if (strcmp(s, "joyaxis")==0) return TYPE_AXIS;
     if (strcmp(s, "joybtn")==0) return TYPE_BUTTON;
     button=lookup_dictionary(d, "button");
     axis=lookup_dictionary(d, "axis");
+    plus=lookup_dictionary(d, "plus");
+    minus=lookup_dictionary(d, "minus");
     if ((button!=NULL)&&(axis!=NULL)) {
         report("Only one of the keys 'button' and 'axis' may be specified");
         return 255;
     }
+    if ((plus!=NULL)&&(axis!=NULL)) {
+        report("Only one of the keys 'plus' and 'axis' may be specified");
+        return 255;
+    }
+    if ((minus!=NULL)&&(axis!=NULL)) {
+        report("Only one of the keys 'minus' and 'axis' may be specified");
+        return 255;
+    }
     if (button!=NULL) return TYPE_BUTTON;
+    if (plus!=NULL) return TYPE_BUTTON;
+    if (minus!=NULL) return TYPE_BUTTON;
     if (axis!=NULL) return TYPE_AXIS;
     return 255;
 }
@@ -152,6 +164,7 @@ static int parse_flags(char *s) {
         else if (strcmp(s, "press")==0) flags|=FLAG_PRESS;
         else if (strcmp(s, "shift")==0) flags|=FLAG_SHIFT;
         else if (strcmp(s, "invert")==0) flags|=FLAG_INVERT;
+        else if (strcmp(s, "binary")==0) flags|=FLAG_BINARY;
         else {
             sprintf(msg, "Unknown flag %s", s);
             report(msg);
@@ -161,14 +174,17 @@ static int parse_flags(char *s) {
     return flags;
 }
 
-static void parse_sequence(__u16 *sequence, char *s, int base, int type) {
+static void parse_sequence(__uint16_t *sequence, char *s, int base, int type) {
     char *p;
     int releaseflag=0;
     int value;
     int i;
     int n=0;
     char msg[256];
-    if (s==NULL) return;
+    if (s==NULL) {
+        sequence[0]=SEQUENCE_DONE;
+        return;
+    }
     if (isnum(s)) {
         if ((base==DEVICE_JOYSTICK)&&(type==TYPE_BUTTON)) {
             base=BTN_JOYSTICK;
@@ -598,9 +614,6 @@ static void parse_button() {
         reportline(t.line, t.pos, "Must have id, or vendor and product");
     } else {
         if (has_required(dict, "src", "target", NULL)) {
-            //printf("button ");
-            //show_dictionary(dict);
-            //printf("\n");
             map.program=PROGRAM_BUTTON_REMAP;
             if (id!=NULL)
                 map.joystick=numeric(id);
@@ -611,7 +624,7 @@ static void parse_button() {
             base=get_device(target);
             map.device=base+(numeric(device)&0xF);
             map.type=get_type(target,dict);
-            if  (base==DEVICE_JOYSTICK) {
+            if (base==DEVICE_JOYSTICK) {
                 num=numeric(device);
                 if (num>8) {
                     report("Maximum of 8 joysticks allowed");
@@ -687,6 +700,7 @@ static void parse_axis() {
             base=get_device(target);
             amap.device=base+(numeric(device)&0xF);
             amap.type=get_type(target,dict);
+            amap.saved_value = 0;
             if  (base==DEVICE_JOYSTICK) {
                 num=numeric(device);
                 if (num>8) {
@@ -712,8 +726,8 @@ static void parse_axis() {
             } else if ((base==DEVICE_MOUSE)&&(amap.type==TYPE_BUTTON)) {
                 base=BTN_MOUSE;
             } else base=0;
-            amap.plus=numeric(plus)+base;
-            amap.minus=numeric(minus)+base;
+            parse_sequence(amap.plus, plus, base, amap.type);
+            parse_sequence(amap.minus, minus, base, amap.type);
             amap.axis=numeric(axis);
             amap.flags=parse_flags(flags);
             axes[naxes]=amap;

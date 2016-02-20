@@ -16,6 +16,7 @@ static struct reserved reserved[]={
     {"wait", WAIT},
     {"signal", PSIGNAL},
     {"var", VAR},
+    {"global", GLOBALVAR},
     {"press", PRESS},
     {"release", RELEASE},
     {"halt", PHALT},
@@ -35,6 +36,7 @@ struct symbol {
 
 #define JS_FLAG (JS<<5)
 #define GP_FLAG (GP<<5)
+#define GLOBAL_FLAG (GLOBAL<<5)
 #define CONST_FLAG (CONST<<5)
 #define CODEA_FLAG (CODEA<<5)
 #define CODEB_FLAG (CODEB<<5)
@@ -287,7 +289,7 @@ static int symbol_exists(char *sym) {
     return -1;
 }
 
-static void add_symbol(struct token symbol, int num) {
+static void add_symbol(struct token symbol, int num, int global) {
     int i;
     char msg[256];
 
@@ -309,8 +311,13 @@ static void add_symbol(struct token symbol, int num) {
         reportline(symbol.line, symbol.pos, "Registers exhausted");
     }
     symbol_table[nsymbols].num=num;
-    symbol_table[nsymbols].type=GP_FLAG;
-    printf("Adding %s to symbols with register r%d\n", symbol.value, symbol_table[nsymbols].r);
+    if (global) {
+        symbol_table[nsymbols].type=GLOBAL_FLAG;
+        printf("Adding global %s to symbols with register r%d\n", symbol.value, symbol_table[nsymbols].r);
+    } else {
+        symbol_table[nsymbols].type=GP_FLAG;
+        printf("Adding %s to symbols with register r%d\n", symbol.value, symbol_table[nsymbols].r);
+    }
     nsymbols++;
 }
 
@@ -415,6 +422,7 @@ static struct token eqchartype(int nc) {
             case '*': t.type=MULTE; break;
             case '/': t.type=DIVE; break;
             case '=': t.type=PEQ; break;
+            case '!': t.type=PNE; break;
         }
     }
     if ((pc=='+')&&(nc=='+')) {
@@ -510,7 +518,7 @@ static struct token programtoken() {
     if (nc=='%') return chartype(nc);
     if (nc==';') return chartype(nc);
     if (nc==',') return chartype(nc);
-    if (nc=='!') return chartype(nc);
+    if (nc=='!') return eqchartype(nc);
     if (nc=='=') return eqchartype(nc);
     if (nc=='+') return eqchartype(nc);
     if (nc=='-') return eqchartype(nc);
@@ -743,7 +751,7 @@ static void parse_condition() {
     expect(')', ")");
 }
 
-static void parse_var() {
+static void parse_var(int global) {
     struct token t;
     struct token id;
     int size;
@@ -768,9 +776,9 @@ static void parse_var() {
                 reportline(t.line, t.pos, "] expected");
                 seek_nextvar();
             } else eattoken();
-            add_symbol(id, size);
+            add_symbol(id, size, global);
             t=peektoken();
-            if (t.type==',') parse_var();
+            if (t.type==',') parse_var(global);
             else if (t.type==';') {
                 eattoken();
                 return;
@@ -780,9 +788,9 @@ static void parse_var() {
                 return;
             }
         } else {
-            add_symbol(id, 1);
+            add_symbol(id, 1, global);
             t=peektoken();
-            if (t.type==',') parse_var();
+            if (t.type==',') parse_var(global);
             else if (t.type==';') {
                 eattoken();
                 return;
@@ -802,8 +810,11 @@ static void parse_declarations() {
     struct token t;
 
     t=peektoken();
-    while (t.type==VAR) {
-        parse_var();
+    while ((t.type==VAR) || (t.type==GLOBALVAR)) {
+        if (t.type == VAR)
+            parse_var(0);
+        else
+            parse_var(1);
         t=peektoken();
     }
 }
@@ -836,7 +847,6 @@ static void parse_if() {
             expect('}', "}");
         } else {
             parse_statement();
-            expect(';', ";");
         }
         fin=ip;
         ip=start;
@@ -1232,6 +1242,10 @@ static void parse_statements(int block) {
         while (t.type!='}') {
             parse_statement();
             t=peektoken();
+            if (t.type == EOF) {
+                expect('}', "}");
+                break;
+            }
         }
     } else {
         while (t.type!=EOF) {

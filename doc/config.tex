@@ -63,7 +63,9 @@ to another event. The allowed keys are
 				keys indicate which buttons/keys must be triggered
 				if the axis is moved in a positive (negative) direction.
 	\item {\bf flags} -- The {\tt invert} flag can be used to reverse the sense of the
-				axis. i.e. positive becomes negative and negative becomes positive.
+				axis. i.e. positive becomes negative and negative becomes positive. The {\tt
+                binary} flag can be used to trigger events only when the axis is moved
+                completely in the other direction.
 \end{itemize}
 Either the {\tt id} or the {\tt vendor} and {\tt product} keys must be specified to identify the
 joystick. The {\tt kbd} target only supports button presses.

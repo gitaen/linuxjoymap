@@ -1,7 +1,7 @@
 #ifndef __program_h
 #define __program_h
 
-#include <asm/types.h>
+#include <sys/types.h>
 
 #define DEVICE_JOYSTICK		128
 #define DEVICE_KBD		64
@@ -18,6 +18,7 @@
 #define FLAG_RELEASE		4
 #define FLAG_SHIFT		8 //only if shifted
 #define FLAG_PRESS		16 //not used by driver
+#define FLAG_BINARY     32
 #define KEYMASK			0xfff
 #define RELEASEMASK		32768
 #define SEQUENCE_DONE		65535
@@ -80,6 +81,7 @@
 #define CODEA	2
 #define JS	3
 #define CONST	4	
+#define GLOBAL  5
 
 //registers, first 10 are reserved or fixed function
 #define RESERVED	10
@@ -101,51 +103,53 @@
 //	system. Otherwise the map is ignored.
 // if vendor=255 and product=0, then this refers to the virtual CODE joystick
 struct program_axis_remap {
-	__u8 program;   //PROGRAM_AXIS_REMAP
-	__u8 joystick;
-	__u16 vendor;
-	__u16 product;
-	__u8 srcaxis;
-	__u8 device;	//low bits of device identify joystick
-	__u8 type;
-	__u8 flags;
-	__u16 axis;
-	__u16 plus;	//can be a key or button
-	__u16 minus;
+	__uint8_t program;   //PROGRAM_AXIS_REMAP
+	__uint8_t joystick;
+	__uint16_t vendor;
+	__uint16_t product;
+	__uint8_t srcaxis;
+	__uint8_t device;	//low bits of device identify joystick
+	__uint8_t type;
+	__uint8_t flags;
+	__uint16_t axis;
+	__uint16_t plus[MAX_SEQUENCE];   //if top bit set, release
+	__uint16_t minus[MAX_SEQUENCE];   //if top bit set, release
+    __int32_t saved_value;  // for implementing binary decisions
 };
 
 struct program_axis_properties {
-	__u8 program;   //PROGRAM_AXIS_PROPERTIES
-	__u8 joystick;
-	__u16 vendor;
-	__u16 product;
-	__u8 srcaxis;
-	__u8 flags;
-	__s16 scale;	//8.8 fixed point
-	__s16 bias;	//shift after scale
-	__u16 threshhold;
+	__uint8_t program;   //PROGRAM_AXIS_PROPERTIES
+	__uint8_t joystick;
+	__uint16_t vendor;
+	__uint16_t product;
+	__uint8_t srcaxis;
+	__uint8_t flags;
+	__int16_t scale;	//8.8 fixed point
+	__int16_t bias;	//shift after scale
+	__uint16_t threshhold;
 };
 
 #define press sequence[0]
 #define release sequence[0]
 struct program_button_remap {
-	__u8 program;   //PROGRAM_BUTTON_REMAP
-	__u8 joystick;
-	__u16 vendor;
-	__u16 product;
-	__u16 srcbutton;
-	__u8 device;	//low bits of device identify joystick
-	__u8 type;
-	__u8 flags;
-	__u16 sequence[MAX_SEQUENCE];   //if top bit set, release
-//	__u16 press;		//can also be a target button or axis
-//	__u16 release;		//release is ignored for an axis
+	__uint8_t program;   //PROGRAM_BUTTON_REMAP
+	__uint8_t joystick;
+	__uint16_t vendor;
+	__uint16_t product;
+	__uint16_t srcbutton;
+	__uint8_t device;	//low bits of device identify joystick
+	__uint8_t type;
+	__uint8_t flags;
+	__uint16_t sequence[MAX_SEQUENCE];   //if top bit set, release
 };
 
 struct program_code {
-	__u8 program;   //PROGRAM_CODE
+	__uint8_t program;   //PROGRAM_CODE
 	unsigned char code[MAX_CODE_SIZE]; //1024 4 byte codes
 };
 
+void code_set_program(struct program_code *code);
+void remap_button(struct program_button_remap *btn);
+void remap_axis(struct program_axis_remap *axis);
 #endif
 

@@ -11,6 +11,9 @@
 #include "validkeys.h"
 #include "parser.h"
 #include "mapper.h"
+#include "clock.h"
+
+#define TIMEOUT         20 //(50 times a second)
 
 int main(int argc, char *argv[]) {
     int i;
@@ -18,6 +21,9 @@ int main(int argc, char *argv[]) {
     int mult=1;
     int div=1;
     int ofs=0;
+    int timeout;
+    int start;
+    int stop;
 
     cmdline_config(argc, argv);
     ++argv, --argc;  /* skip over program name */
@@ -58,8 +64,6 @@ int main(int argc, char *argv[]) {
 
         register_devices();
         set_scale_factor(mult, div, ofs);
-        sleep(1);
-        install_event_handlers();
         printf("%d button assignments.\n", nbuttons);
         for (i=0; i<nbuttons; i++)
             remap_button(&buttons[i]);
@@ -70,13 +74,21 @@ int main(int argc, char *argv[]) {
             set_joystick_number(scriptassign[i].vendor, scriptassign[i].product, scriptassign[i].device);
         }
         code_set_program(&program);
+        install_event_handlers();
     } else {
         printf("Error in map file, nothing done.\n");
         return 1;
     }
 
+    timeout = TIMEOUT;
     while (1) {
-        poll_joystick_loop();
+        start = clock_millis();
+        poll_joystick_loop(timeout);
+        stop = clock_millis();
+        timeout -= stop - start;
+        /* We silently ignore skipped iterations .... */
+        while (timeout <= 0)
+            timeout += TIMEOUT;
     }
 
     mapper_code_uninstall();

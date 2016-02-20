@@ -47,6 +47,10 @@ is assigned to one register. Registers can be used up very
 quickly by declaring arrays! Arrays are 0 based, that is the
 first index of any array is 0.\\
 
+A variable can be declared with the {\tt global} keyword instead, in 
+which case the variable is {\it shared} between all threads. This 
+variable can then be used for inter thread communication.
+
 There are a few predefined variables that have a special meaning. These
 variables are described in the following sections.
 
