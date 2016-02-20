@@ -124,6 +124,8 @@ void poll_joystick_loop() {
     }
 
     poll(polled_fds, n, TIMEOUT);
+    /* TODO: We may return early, we should indicate to program_run if a timertick is required */
+    /* http://man7.org/linux/man-pages/man2/clock_gettime.2.html */
     for (i=0; i<n; i++) {
         if (polled_fds[i].revents&POLLIN) {
             rb=1;
