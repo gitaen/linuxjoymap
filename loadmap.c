@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
 
         register_devices();
         set_scale_factor(mult, div, ofs);
+        install_event_handlers();
         printf("%d button assignments.\n", nbuttons);
         for (i=0; i<nbuttons; i++)
             remap_button(&buttons[i]);
@@ -74,7 +75,6 @@ int main(int argc, char *argv[]) {
             set_joystick_number(scriptassign[i].vendor, scriptassign[i].product, scriptassign[i].device);
         }
         code_set_program(&program);
-        install_event_handlers();
     } else {
         printf("Error in map file, nothing done.\n");
         return 1;
