@@ -372,8 +372,11 @@ void remap_axis(struct program_axis_remap *axis) {
     }
 
     if (mapper==NULL) return;
+    if (mapper->mapped)
+        r = 0;
+    else
+        r = ioctl(mapper->fd, EVIOCGRAB, 1);
     mapper->mapped=1;
-    r = ioctl(mapper->fd, EVIOCGRAB, 1);
     if (r < 0) {
         perror("Failed to grab device");
         fprintf(stderr, "Failed to lock device with vendor=0x%04x, product=0x%04x. Continuing anyway...\n", axis->vendor, axis->product);
@@ -400,8 +403,11 @@ void remap_button(struct program_button_remap *btn) {
     }
 
     if (mapper==NULL) return;
+    if (mapper->mapped)
+        r = 0;
+    else
+        r = ioctl(mapper->fd, EVIOCGRAB, 1);
     mapper->mapped=1;
-    r = ioctl(mapper->fd, EVIOCGRAB, 1);
     if (r < 0) {
         perror("Failed to grab device");
         fprintf(stderr, "Failed to lock device with vendor=0x%04x, product=0x%04x. Continuing anyway...\n", btn->vendor, btn->product);
