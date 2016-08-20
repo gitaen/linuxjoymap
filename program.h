@@ -19,6 +19,7 @@
 #define FLAG_SHIFT		8 //only if shifted
 #define FLAG_PRESS		16 //not used by driver
 #define FLAG_BINARY     32
+#define FLAG_TRINARY    64
 #define KEYMASK			0xfff
 #define RELEASEMASK		32768
 #define SEQUENCE_DONE		65535
@@ -115,6 +116,9 @@ struct program_axis_remap {
 	__uint16_t plus[MAX_SEQUENCE];   //if top bit set, release
 	__uint16_t minus[MAX_SEQUENCE];   //if top bit set, release
     __int32_t saved_value;  // for implementing binary decisions
+    __int32_t min;
+    __int32_t max;
+    __int32_t deadzone;
 };
 
 struct program_axis_properties {

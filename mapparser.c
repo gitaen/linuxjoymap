@@ -37,6 +37,9 @@ static char *known_keys[]={
     "button",
     "axes",
     "buttons",
+    "min",
+    "max",
+    "deadzone",
     NULL
 };
 
@@ -63,7 +66,7 @@ struct joystick joysticks[8];
 
 static int base=0;
 
-static char *id, *vendor, *product, *src, *target, *button, *device, *flags, *axis, *plus, *minus;
+static char *id, *vendor, *product, *src, *target, *button, *device, *flags, *axis, *plus, *minus, *min, *max, *deadzone;
 static char compile[256]="";
 
 static int ishex(char *s) {
@@ -94,8 +97,13 @@ static int isnum(char *s) {
 
 int numeric(char *s) {
     int r=0;
+    int sign = 1;
     char msg[256];
     if (s==NULL) return 0;
+    if (s[0] == '-') {
+        sign = -1;
+        s++;
+    }
     if (ishex(s)) {
         r=strtol(s, NULL, 16);
     } else if (isnum(s)) {
@@ -105,7 +113,7 @@ int numeric(char *s) {
         report(msg);
         return 0;
     }
-    return r;
+    return sign * r;
 }
 
 static int get_device(char *s) {
@@ -165,6 +173,7 @@ static int parse_flags(char *s) {
         else if (strcmp(s, "shift")==0) flags|=FLAG_SHIFT;
         else if (strcmp(s, "invert")==0) flags|=FLAG_INVERT;
         else if (strcmp(s, "binary")==0) flags|=FLAG_BINARY;
+        else if (strcmp(s, "trinary")==0) flags|=FLAG_TRINARY;
         else {
             sprintf(msg, "Unknown flag %s", s);
             report(msg);
@@ -363,7 +372,7 @@ static struct token parse_value(struct token t, int pos) {
     t.type=VALUE;
     if (pos>=0) {
         nc=peekchar();
-        while (isalnum(nc)||(nc==',')||(nc==';')) {
+        while (isalnum(nc)||(nc==',')||(nc==';')||(nc=='-')) {
             t.value[pos++]=nc;
             eatchar();
             nc=peekchar();
@@ -456,6 +465,7 @@ static struct token maptoken() {
     if (nc==',') return parse_value(t,0);
     if (nc==';') return parse_value(t,0);
     if (nc=='_') return parse_value(t,0);
+    if (nc=='-') return parse_value(t,0);
     if (isdigit(nc)) return parse_value(t,0);
     if (isalnum(nc)) return parse_id_or_value();
     sprintf(message, "Unexpected character \"%c\".", nc);
@@ -685,6 +695,9 @@ static void parse_axis() {
     minus=lookup_dictionary(dict, "minus");
     device=lookup_dictionary(dict, "device");
     flags=lookup_dictionary(dict, "flags");
+    min=lookup_dictionary(dict, "min");
+    max=lookup_dictionary(dict, "max");
+    deadzone=lookup_dictionary(dict, "deadzone");
     if ((id==NULL)&&((vendor==NULL)||(product==NULL))) {
         reportline(t.line, t.pos, "Must have id, or vendor and product");
     } else {
@@ -730,6 +743,9 @@ static void parse_axis() {
             parse_sequence(amap.minus, minus, base, amap.type);
             amap.axis=numeric(axis);
             amap.flags=parse_flags(flags);
+            amap.min=numeric(min);
+            amap.max=numeric(max);
+            amap.deadzone=numeric(deadzone);
             axes[naxes]=amap;
             naxes++;
         }

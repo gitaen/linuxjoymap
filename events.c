@@ -264,6 +264,35 @@ static void process_axis(struct mapping *mapper, int axis, int value) {
     axes_remap=mapper->map[shifted].axes;
     if (axes_remap==NULL) return;
     if (axes_remap[axis]==NULL) return;
+
+    if (axes_remap[axis]->min != axes_remap[axis]->max) {
+        if (axes_remap[axis]->min < axes_remap[axis]->max) {
+            if (value < axes_remap[axis]->min)
+                value = axes_remap[axis]->min;
+            if (value > axes_remap[axis]->max)
+                value = axes_remap[axis]->max;
+        } else {
+            if (value > axes_remap[axis]->min)
+                value = axes_remap[axis]->min;
+            if (value < axes_remap[axis]->max)
+                value = axes_remap[axis]->max;
+        }
+        // sigh. use floating point because I am too lazy (right now) to work out an overflow free integer version
+        value = ((value - axes_remap[axis]->min) * 65536.0) / (axes_remap[axis]->max - axes_remap[axis]->min) - 32767;
+        if (value < -32767) value = -32767;
+        if (value > 32767) value = 32767;
+    }
+
+    if ((value >= -axes_remap[axis]->deadzone) && (value <= axes_remap[axis]->deadzone)) {
+        value = 0;
+    } else if (axes_remap[axis]->deadzone) {
+        // we don't want a sudden jump in values. rescale it.
+        if (value < 0)
+            value = (value + axes_remap[axis]->deadzone) * 32767.0 / (32767 - axes_remap[axis]->deadzone);
+        else
+            value = (value - axes_remap[axis]->deadzone) * 32767.0 / (32767 - axes_remap[axis]->deadzone);
+    }
+
     if (axes_remap[axis]->flags&FLAG_BINARY) {
         // only process the event if there is a binary change (differs in sign and non-zero)
         if ((axes_remap[axis]->saved_value<0) && (value<=0)) {
@@ -272,12 +301,31 @@ static void process_axis(struct mapping *mapper, int axis, int value) {
         if ((axes_remap[axis]->saved_value>0) && (value>=0)) {
             return;
         }
+        if ((axes_remap[axis]->saved_value==0) && (value==0)) {
+            return;
+        }
         axes_remap[axis]->saved_value=value;
         if (value == 0)
             //release any keys pressed
             release = 1;
     }
+
+    if (axes_remap[axis]->flags&FLAG_TRINARY) {
+        // only process the event if there is a binary change (differs in sign and non-zero)
+        if ((axes_remap[axis]->saved_value<0) && (value<0)) {
+            return;
+        }
+        if ((axes_remap[axis]->saved_value>0) && (value>0)) {
+            return;
+        }
+        axes_remap[axis]->saved_value=value;
+        if (value == 0)
+            //release any keys pressed
+            release = 1;
+    }
+
     j=axes_remap[axis]->device&0x0F;
+
     switch (axes_remap[axis]->device&0xF0) {
         case DEVICE_JOYSTICK:
             if (axes_remap[axis]->type==TYPE_BUTTON) {

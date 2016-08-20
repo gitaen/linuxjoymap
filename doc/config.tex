@@ -65,11 +65,29 @@ to another event. The allowed keys are
 	\item {\bf flags} -- The {\tt invert} flag can be used to reverse the sense of the
 				axis. i.e. positive becomes negative and negative becomes positive. The {\tt
                 binary} flag can be used to trigger events only when the axis is moved
-                completely in the other direction.
+                completely in the other direction. The {\tt trinary} flag is similar to the binary flag
+                but also triggers events when the axis is centered (the 0 input value resets state).
+    \item {\bf min} -- The reported minimum value on the axis. Used for determining trigger levels.
+    \item {\bf max} -- The reported maximum value on the axis. Used for determining trigger levels.
+    \item {\bf deadzone} -- The deadzone for the axis.
 \end{itemize}
 Either the {\tt id} or the {\tt vendor} and {\tt product} keys must be specified to identify the
 joystick. The {\tt kbd} target only supports button presses.
 
+\strut\\
+If {\tt min} and {\tt max} are specified, then the input will be remapped into the range $[-32767, 32767]$ using the
+formula
+$$
+    o = \frac{65536\times(x-min)}{max-min} - 32767
+$$
+where $x$ is the input and $o$ is the reported axis position.
+The value will be clamped if necessary. Note that if $min > max$ then the axis reporting is switched around by this formula.
+
+\strut\\
+If a deadzone is specified, then the deadzone is enforced {\bf after} mapping using the formula above so that any input $x$ such
+that $-deadzone \leq x \leq deadzone$ will be reported as $0$.
+
+\strut\\
 {\bf Example.}\\
 \strut\\
 {\tt axis vendor=0x068e product=0x00f1 src=0 target=mouse axis=0}
