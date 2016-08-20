@@ -368,9 +368,9 @@ static void process_axis(struct mapping *mapper, int axis, int value) {
                     }
                 }
             } else if (axes_remap[axis]->type==TYPE_AXIS) {
-                //it is an axis
-                value-=127;
-                value/=32;
+                //assume --32767 to 32767
+                // slow this down to 5 8 speeds.
+                value/=256*32;
                 if (axes_remap[axis]->flags&FLAG_INVERT) value=-value;
                 //if (value>0) value=1;
                 //if (value<0) value=-1;
