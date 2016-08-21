@@ -42,11 +42,14 @@ static int mouse_fd;
 static int kbd_fd;
 static int code_fd;
 static int njoysticks;
-static int x;
-static int y;
-static int dx;
-static int dy;
-static int dwheel;
+static int x = 0;
+static int y = 0;
+static int dx = 0;
+static int dy = 0;
+static int adx = 0;
+static int ady = 0;
+static int adw = 0;
+static int dwheel = 0;
 
 void set_num_joysticks(int num) {
     njoysticks=num;
@@ -257,13 +260,25 @@ void set_mouse_pos(int cx, int cy) {
     y=cy;
     dx=0;
     dy=0;
+    adx=0;
+    ady=0;
 }
 
 void move_mouse_x(int rdx) {
+    dx = rdx;
+}
+
+void move_mouse_y(int rdy) {
+    dy = rdy;
+}
+
+void move_mouse_wheel(int rdw) {
+    dwheel = rdw;
+}
+
+void send_move_mouse_x(int dx) {
     struct input_event event;
     gettimeofday(&event.time, NULL);
-    dx=rdx;
-    x+=dx;
     event.type=EV_REL;
     event.code=REL_X;
     event.value=dx;
@@ -274,13 +289,12 @@ void move_mouse_x(int rdx) {
     safe_write(mouse_fd, &event, sizeof(event));
 }
 
-void move_mouse_wheel(int rdw) {
+void send_move_mouse_wheel(int dwheel) {
     struct input_event event;
     gettimeofday(&event.time, NULL);
-    dwheel=rdw;
     event.type=EV_REL;
     event.code=REL_WHEEL;
-    event.value=dx;
+    event.value=dwheel;
     safe_write(mouse_fd, &event, sizeof(event));
     event.type=EV_SYN;
     event.code=SYN_REPORT;
@@ -288,11 +302,9 @@ void move_mouse_wheel(int rdw) {
     safe_write(mouse_fd, &event, sizeof(event));
 }
 
-void move_mouse_y(int rdy) {
+void send_move_mouse_y(int dy) {
     struct input_event event;
     gettimeofday(&event.time, NULL);
-    dy=rdy;
-    y+=dy;
     event.type=EV_REL;
     event.code=REL_Y;
     event.value=dy;
@@ -309,8 +321,51 @@ void move_mouse(int rdx, int rdy) {
 }
 
 void repeat_mouse_move() {
-    move_mouse_x(dx);
-    move_mouse_y(dy);
+    static __uint64_t last = 0;
+    int mdx = 0, mdy = 0;
+    __uint64_t current, delta;
+
+    if (last == 0) {
+        last = clock_millis();
+        return;
+    }
+
+    current = clock_millis();
+    if (dx || dy) {
+        delta = current - last;
+        adx += delta * dx;
+        ady += delta * dy;
+    
+        if (abs(adx) >= INTERVAL) {
+            mdx = adx / INTERVAL;
+            adx -= mdx * INTERVAL;
+        }
+    
+        if (abs(ady) >= INTERVAL) {
+            mdy = ady / INTERVAL;
+            ady -= mdy * INTERVAL;
+        }
+    
+        x += mdx;
+        y += mdy;
+        if ((mdx) || (mdy)) {
+            send_move_mouse_x(mdx);
+            send_move_mouse_y(mdy);
+        }
+    }
+
+    if (dwheel) {
+        adw += delta * dwheel;
+        if (abs(adw) >= INTERVAL) {
+            mdw = adw / INTERVAL;
+            adw -= mdw * INTERVAL;
+        }
+
+        if (mdw)
+            send_move_mouse_wheel(mdw);
+    }
+
+    last = current;
 }
 
 void release_mouse_buttons(void) {
