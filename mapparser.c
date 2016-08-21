@@ -40,6 +40,7 @@ static char *known_keys[]={
     "min",
     "max",
     "deadzone",
+    "speed",
     NULL
 };
 
@@ -66,7 +67,7 @@ struct joystick joysticks[8];
 
 static int base=0;
 
-static char *id, *vendor, *product, *src, *target, *button, *device, *flags, *axis, *plus, *minus, *min, *max, *deadzone;
+static char *id, *vendor, *product, *src, *target, *button, *device, *flags, *axis, *plus, *minus, *min, *max, *deadzone, *speed;
 static char compile[256]="";
 
 static int ishex(char *s) {
@@ -620,6 +621,7 @@ static void parse_button() {
     axis=lookup_dictionary(dict, "axis");
     device=lookup_dictionary(dict, "device");
     flags=lookup_dictionary(dict, "flags");
+    speed=lookup_dictionary(dict, "speed");
     if ((id==NULL)&&((vendor==NULL)||(product==NULL))) {
         reportline(t.line, t.pos, "Must have id, or vendor and product");
     } else {
@@ -653,6 +655,9 @@ static void parse_button() {
                 }
             }
             map.srcbutton=numeric(src)+BTN_JOYSTICK;
+            map.speed=numeric(speed);
+            if (map.speed==0)
+                map.speed=8;
             map.flags=parse_flags(flags);
             if (button!=NULL)
                 parse_sequence(map.sequence, button, base, map.type);
@@ -698,6 +703,7 @@ static void parse_axis() {
     min=lookup_dictionary(dict, "min");
     max=lookup_dictionary(dict, "max");
     deadzone=lookup_dictionary(dict, "deadzone");
+    speed=lookup_dictionary(dict, "speed");
     if ((id==NULL)&&((vendor==NULL)||(product==NULL))) {
         reportline(t.line, t.pos, "Must have id, or vendor and product");
     } else {
@@ -746,6 +752,9 @@ static void parse_axis() {
             amap.min=numeric(min);
             amap.max=numeric(max);
             amap.deadzone=numeric(deadzone);
+            amap.speed=numeric(speed);
+            if (amap.speed==0)
+                amap.speed=32767;
             axes[naxes]=amap;
             naxes++;
         }

@@ -119,6 +119,7 @@ struct program_axis_remap {
     __int32_t min;
     __int32_t max;
     __int32_t deadzone;
+    __int32_t speed;
 };
 
 struct program_axis_properties {
@@ -145,6 +146,7 @@ struct program_button_remap {
 	__uint8_t type;
 	__uint8_t flags;
 	__uint16_t sequence[MAX_SEQUENCE];   //if top bit set, release
+    __int32_t speed;
 };
 
 struct program_code {

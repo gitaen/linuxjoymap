@@ -70,6 +70,7 @@ to another event. The allowed keys are
     \item {\bf min} -- The reported minimum value on the axis. Used for determining trigger levels.
     \item {\bf max} -- The reported maximum value on the axis. Used for determining trigger levels.
     \item {\bf deadzone} -- The deadzone for the axis.
+    \item {\bf speed} -- for mouse axis targets, this is a speed setting from 0 (no movement) to 32767 (very fast and default)
 \end{itemize}
 Either the {\tt id} or the {\tt vendor} and {\tt product} keys must be specified to identify the
 joystick. The {\tt kbd} target only supports button presses.
@@ -136,6 +137,7 @@ to another event. The allowed keys are
 			
 				The {\tt shift} key specifies that this mapping is only
 				applied when in a shifted state (see the {\tt shift} statement below).
+    \item {\bf speed} -- for mouse axis targets, this is a speed setting from 1 (slow) to 1000 (very fast). 8 is the default.
 \end{itemize}
 Either the {\tt id} or the {\tt vendor} and {\tt product} keys must be specified to identify the
 joystick. The {\tt kbd} target only supports button presses.
