@@ -7,10 +7,12 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include "config.h"
+#include "clock.h"
 #include "program.h"
 #include "mapper.h"
 
 #define NUM_JOYSTICKS 10
+#define INTERVAL      50
 
 struct jscal {
     int min;
@@ -322,7 +324,7 @@ void move_mouse(int rdx, int rdy) {
 
 void repeat_mouse_move() {
     static __uint64_t last = 0;
-    int mdx = 0, mdy = 0;
+    int mdx = 0, mdy = 0, mdw = 0;
     __uint64_t current, delta;
 
     if (last == 0) {
