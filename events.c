@@ -255,7 +255,7 @@ static void process_axis(struct mapping *mapper, int axis, int value) {
     int button=0;
     int i, j;
     struct program_axis_remap **axes_remap;
-    __uint16_t *sequence;
+    __uint16_t *sequence, *off;
     int release = 0;
 
     if ((mapper->vendor!=0x00ff)||(mapper->product!=0x0000))
@@ -326,18 +326,27 @@ static void process_axis(struct mapping *mapper, int axis, int value) {
 
     j=axes_remap[axis]->device&0x0F;
 
+    if (axes_remap[axis]->type==TYPE_BUTTON) {
+        if (value<0) {
+            sequence=axes_remap[axis]->minus;
+            off=axes_remap[axis]->plus;
+        } else {
+            sequence=axes_remap[axis]->plus;
+            off=axes_remap[axis]->minus;
+        }
+    }
+
     switch (axes_remap[axis]->device&0xF0) {
         case DEVICE_JOYSTICK:
             if (axes_remap[axis]->type==TYPE_BUTTON) {
                 //a joystick button
-                if (value<0)
-                    sequence=axes_remap[axis]->minus;
-                else
-                    sequence=axes_remap[axis]->plus;
+                for (i=0; (i<MAX_SEQUENCE) && (off[i]!=SEQUENCE_DONE); i++) {
+                    button=off[i]&KEYMASK;
+                    press_joy_button(j, button, 0);
+                }
                 for (i=0; (i<MAX_SEQUENCE) && (sequence[i]!=SEQUENCE_DONE); i++) {
                     button=sequence[i]&KEYMASK;
-                    if (sequence[i]&RELEASEMASK) value=0;
-                    if (release) value=0;
+                    if ((release) || (sequence[i]&RELEASEMASK)) value=0;
                     else value=1;
                     press_joy_button(j, button, value);
                     if ((axes_remap[axis]->flags&FLAG_AUTO_RELEASE)&&(value==1)) {
@@ -353,15 +362,14 @@ static void process_axis(struct mapping *mapper, int axis, int value) {
         case DEVICE_MOUSE:
             if (axes_remap[axis]->type==TYPE_BUTTON) {
                 //a mouse button
-                if (value<0)
-                    sequence=axes_remap[axis]->minus;
-                else
-                    sequence=axes_remap[axis]->plus;
+                for (i=0; (i<MAX_SEQUENCE) && (off[i]!=SEQUENCE_DONE); i++) {
+                    button=off[i]&KEYMASK;
+                    press_mouse_button(button, 0);
+                }
                 for (i=0; (i<MAX_SEQUENCE) && (sequence[i]!=SEQUENCE_DONE); i++) {
                     button=sequence[i]&KEYMASK;
-                    if (sequence[i]&RELEASEMASK) value=0;
+                    if ((release) || (sequence[i]&RELEASEMASK)) value=0;
                     else value=1;
-                    if (release) value=0;
                     press_mouse_button(button, value);
                     if ((axes_remap[axis]->flags&FLAG_AUTO_RELEASE)&&(value==1)) {
                         press_mouse_button(button, 0);
@@ -385,15 +393,14 @@ static void process_axis(struct mapping *mapper, int axis, int value) {
         case DEVICE_KBD:
             if (axes_remap[axis]->type==TYPE_BUTTON) {
                 //a keypress
-                if (value<0)
-                    sequence=axes_remap[axis]->minus;
-                else
-                    sequence=axes_remap[axis]->plus;
+                for (i=0; (i<MAX_SEQUENCE) && (off[i]!=SEQUENCE_DONE); i++) {
+                    button=off[i]&KEYMASK;
+                    press_key(button, 0);
+                }
                 for (i=0; (i<MAX_SEQUENCE) && (sequence[i]!=SEQUENCE_DONE); i++) {
                     button=sequence[i]&KEYMASK;
-                    if (sequence[i]&RELEASEMASK) value=0;
+                    if ((release) || (sequence[i]&RELEASEMASK)) value=0;
                     else value=1;
-                    if (release) value=0;
                     press_key(button, value);
                     if ((axes_remap[axis]->flags&FLAG_AUTO_RELEASE)&&(value==1)) {
                         press_key(button, 0);
