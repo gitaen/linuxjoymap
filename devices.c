@@ -333,8 +333,9 @@ void repeat_mouse_move() {
     }
 
     current = clock_millis();
+    delta = current - last;
+
     if (dx || dy) {
-        delta = current - last;
         adx += delta * dx;
         ady += delta * dy;
     
