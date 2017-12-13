@@ -28,14 +28,14 @@ int main(int argc, char *argv[]) {
     cmdline_config(argc, argv);
     ++argv, --argc;  /* skip over program name */
 
-    if (strcmp(argv[0], "-8")==0) {
+    if (argc && strcmp(argv[0], "-8")==0) {
         ++argv, --argc;
         mult=256;
         div=1;
         ofs=32767;
     }
 
-    if (strcmp(argv[0], "-d")==0) {
+    if (argc && strcmp(argv[0], "-d")==0) {
         ++argv, --argc;
         set_dynamic_calibrate(1);
     }
