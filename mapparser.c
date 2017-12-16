@@ -566,7 +566,7 @@ static void parse_shift() {
                 map.joystick=255;
             map.vendor=numeric(vendor);
             map.product=numeric(product);
-            map.srcbutton=numeric(src);
+            map.srcbutton=numeric(src)+BTN_JOYSTICK;
             map.type=TYPE_SHIFT;
             map.flags=FLAG_NONE;
             buttons[nbuttons]=map;
