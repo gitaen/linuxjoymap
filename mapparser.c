@@ -740,11 +740,6 @@ static void parse_axis() {
                     }
                 }
             }
-            if ((base==DEVICE_JOYSTICK)&&(amap.type==TYPE_BUTTON)) {
-                base=BTN_JOYSTICK;
-            } else if ((base==DEVICE_MOUSE)&&(amap.type==TYPE_BUTTON)) {
-                base=BTN_MOUSE;
-            } else base=0;
             parse_sequence(amap.plus, plus, base, amap.type);
             parse_sequence(amap.minus, minus, base, amap.type);
             amap.axis=numeric(axis);
